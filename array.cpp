@@ -18,7 +18,7 @@ int int_array::get_capacity(){
     return capacity_;
 }
 
-void int_array::increase(){
+void int_array::increase() {
     std::cout << "Size is too large. New capacity = " << capacity_ * 2 << std::endl;
 
     int *data_1 = new int[(capacity_*= 2) * 2];
@@ -31,7 +31,7 @@ void int_array::increase(){
     delete[] data_1; 
 }
 
-void int_array::is_full(){
+void int_array::is_full() {
     if (size_ == capacity_)
         increase();
 }
@@ -70,7 +70,7 @@ int main(int argc, char const *argv[]) {
     // 42
     std::cout << arr.at(1) << std::endl;
 
-    // "Not enough memory. New capacity = 4"
+    // "Size is too large. New capacity = 4"
     arr.push_back(51);
     // 51
     std::cout << arr.at(2) << std::endl;
@@ -79,7 +79,7 @@ int main(int argc, char const *argv[]) {
     // 2
     std::cout << arr.at(3) << std::endl;
 
-    // "Not enough memory. New capacity = 8"
+    // "Size is too large. New capacity = 8"
     arr.push_back(7);
     // 7
     std::cout << arr.at(4) << std::endl;

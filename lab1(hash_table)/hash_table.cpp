@@ -4,77 +4,90 @@
 #include <cassert>
 
 HashTable::HashTable() {
-    IntArray array(MIN_BUF); // Массивчик
-    std::cout << "CONSTRUCTOR" << std::endl;
+    int* array = new int(MIN_BUF);
+    size_ = 0;
+    capacity_ = MIN_BUF;
+    std::cout << "Ctor" << std::endl;
 }
 
 HashTable::~HashTable() {
-    std::cout << "DESTUCTOR" << std::endl;
+    std::cout << "Dtor" << std::endl;
+    delete[] array;
 }
 
-// void HashTable::swap(HashTable& b) {
-//     HashTable* c = this;
-//     this = &b;
-//     b = c;
-// }
+size_t HashTable::size() const{
+    return size_;
+}
 
+size_t HashTable::capacity() const{
+    return capacity_;
+}
 
-int calc_main_hash(std::string expression){
+int HashTable::calc_main_hash(std::string expression){
     int len = expression.length();
+    int p = 1;
+    unsigned int hash;
     for (int i = 0 ; i < len ; i++) {
-        size_t hash = expression[i] * pow(3.0 , 1.0);
+        hash = expression[i] * p;
+        p *= 7;
     }
-    return len;
+    return hash % capacity();
 }
 
 int HashTable::calc_extra_hash(std::string expression){
-    return 1;
-}
-
-
-IntArray::IntArray(int capacity): array_(new int[capacity]), capacity_(capacity) {
-    std::cout << "Ctor_array" << std::endl;
-}
-
-IntArray::~IntArray() {
-    std::cout << "Dtor_array" << std::endl;
-    delete[] array_;
-}
-
-void IntArray::resize(){
-    int* arr = new int[size_ * 2];
-    capacity_ = capacity_ * 2;
-    for (int i = 0; i < size_; i++){
-        arr[i] = array_[i];
+    int len = expression.length();
+    int p = 1;
+    unsigned int hash;
+    for (int i = 0 ; i < len ; i++) {
+        hash = expression[i] * p;
+        p *= 11;
     }
-    delete [] array_;
-    array_ = arr;
+    return hash % capacity();
 }
 
-int IntArray::push_back(int i) {
-    if (size_ + 1 == capacity_) resize();
-    array_[size_] = i;
-    size_++;
-    return size_;
+HashTable::HashTable(const HashTable& b){
+    array = new int[b.capacity_];
+    std::copy(b.array , b.array + b.capacity_ , array);
+    capacity_ = b.capacity_;
+    size_ = b.size_;
 }
 
-int IntArray::at(int i) {
-    assert(i < size_ && i >= 0);
-    return array_[i];
+HashTable& HashTable::operator=(const HashTable& b ) {
+    if (this != &b) {
+        delete[] this->array;
+        size_ = b.size_;
+        capacity_ = b.capacity_;
+        array = new int(b.capacity_);
+        std::copy(b.array , b.array + b.capacity_ , array);
+    }
+    return *this;
 }
 
-int IntArray::pop_back() {
-    assert(size_ > 0);
-    size_--;
-    return array_[size_];
+void HashTable::swap(HashTable& b){
+    // HashTable& a = b; ???
+    // &b = this;
+    // this = &a;
+    int* a = b.array;
+    int s = b.size_;
+    int c = b.capacity_;
+    b.array = array;
+    b.size_ = size_;
+    b.capacity_ = capacity_;
+    array = a;
+    capacity_ = c;
+    size_ = s;
+}
+void HashTable::clear() {
+    size_ = 0;
+    for (int i = 0 ; i < capacity_ ; i++) {
+        array[i] = 0;
+    }
 }
 
-int IntArray::size() {
-    return size_;
-}
 
 int main(){
     HashTable table;
-
+    std::cout <<  table.calc_main_hash("dasd") << std::endl;
+    std::cout <<  table.calc_extra_hash("dasd") << std::endl;
     return 0;
 }

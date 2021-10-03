@@ -1,4 +1,4 @@
- #define MIN_BUF 10
+#define MIN_BUF 10 // простое
 typedef std::string Key;
 
 typedef struct Value {
@@ -9,7 +9,9 @@ typedef struct Value {
 
 class HashTable {
 private:
-    class int_array;
+    int* array;
+    int size_;
+    int capacity_;
 public:
     HashTable();
     ~HashTable();
@@ -18,7 +20,7 @@ public:
 
     HashTable(const HashTable& b);
 
-    //int calc_main_hash(std::string expression);
+    int calc_main_hash(std::string expression);
 
     int calc_extra_hash(std::string expression);
 
@@ -38,25 +40,13 @@ public:
 
     const Value& at(const Key& k) const;
   
-    size_t size() const;
+    size_t size() const ;
+
+    size_t capacity() const ;
 
     bool empty() const;
 
+
     friend bool operator==(const HashTable& a, const HashTable& b);
     friend bool operator!=(const HashTable& a, const HashTable& b);
-};
-
-class IntArray {
-public:
-    IntArray(int capacity);
-    ~IntArray();
-private:    
-    int push_back(int i);
-    int at(int i);
-    int pop_back();
-    int size();
-    int *array_;
-    int size_ = 0;
-    int capacity_ = MIN_BUF;
-    void resize();
 };

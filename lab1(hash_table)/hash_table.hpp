@@ -1,24 +1,32 @@
-#define MIN_BUF 10 // простое
+#define MIN_SIZE 2 // простое
+#define PRIME_1 7
+#define PRIME_2 11
 typedef std::string Key;
 
 typedef struct Value {
+    Value() = default;
     Value(std::string n, unsigned a = 0) : name(n), age(a) {}
     std::string name;
     unsigned age;
 }Value;
 
+
 class HashTable {
 private:
-    int* array;
+    Value* array;
     int size_;
     int capacity_;
 public:
     HashTable();
     ~HashTable();
-
+    bool is_occupied(int pos);
     HashTable& operator=(const HashTable& b);
 
     HashTable(const HashTable& b);
+
+    void print_table();
+
+    bool resize();
 
     int calc_main_hash(std::string expression);
 

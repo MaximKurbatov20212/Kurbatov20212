@@ -4,20 +4,24 @@
 #include <cassert>
 
 void HashTable::print_table() {
+    std::cout << "Table" << std::endl;
     for(int i = 0 ; i < capacity_ ; i++) {
         std::cout << "name: " << array[i].name << " age: " << array[i].age << std::endl;
     }
+    std::cout <<  std::endl;
 }
 
 HashTable::HashTable() {
     array = new Value[MIN_SIZE];
-
     for(int i = 0 ; i < MIN_SIZE ; i++) {
+
+        //Value(array[i]);
+        array[i].Value("dsaihd" , 10);
+        
         array[i].name = "\0";
         array[i].age = 0;
     }
 
-    std::cout << array << std::endl;
     size_ = 0;
     capacity_ = MIN_SIZE;
     std::cout << "Ctor" << std::endl;
@@ -25,7 +29,6 @@ HashTable::HashTable() {
 
 HashTable::~HashTable() {
     std::cout << "Dtor" << std::endl;
-    std::cout << array << std::endl;
     delete [] array;
 }
 
@@ -117,8 +120,8 @@ bool HashTable::insert(const Key& k, const Value& v) {
         size_++;
         return true;
     }
+    hash = calc_extra_hash(k); // Знаю, что нельзя
     while (true) {
-        hash = calc_extra_hash(k); // Знаю, что нельзя
         if(!is_occupied(hash)) {
             array[hash] = v;
             size_++;
@@ -127,19 +130,75 @@ bool HashTable::insert(const Key& k, const Value& v) {
     }
 }
 
-// Value& HashTable::operator[](const Key& k) {
-//     return ;
-// }
+Value& HashTable::operator[](const Key& k) {
+    int step = calc_extra_hash(k);
+    int hash = calc_main_hash(k);
+    for (int i = hash ; ; i += step ) {
+        if (array[i].name == k) {
+            return array[i];        
+        }
+    }
+}
+bool erase() {
+        
+}
+
+void print_value(Value& a) {
+    std::cout << "name: " << a.name << " age: "<< a.age << std::endl;
+}
+
+bool operator==(const HashTable& a, const HashTable& b) {
+    if (a.size() != b.size()) {
+        return false;
+    }
+
+    else if (a.capacity() != b.capacity()){
+        return false;
+    }
+
+    for(int i = 0 ; i < a.capacity_ ; i++){
+        if (a.array[i].name != b.array[i].name || a.array[i].age != b.array[i].age){
+                return false;
+        }
+    }
+    return true;
+}
+
+bool operator!=(const HashTable& a, const HashTable& b) {
+    return !(a == b);
+}
+
+bool HashTable::empty() const{
+    if (size_ == 0) {
+        return true;
+    }
+    return false;    
+}
 
 int main(){
     HashTable table;
+    HashTable b;
+    //table.print_table();
+
+    const Value t3 ("John" , 10);
+    const Value t4 ("John" , 20);
+    const Value t1 ("Menson" , 17);
+    const Value t2 ("Alex" , 28);
+
+    table.insert(t3.name , t3);
+    table.insert(t4.name , t4);
+
+    table.insert(t1.name , t1);
+    table.insert(t2.name , t2);
+    
+    b.insert(t3.name , t3);
+    b.insert(t4.name , t4);
+
+    b.insert(t1.name , t1);
+    b.insert(t2.name , t2);
+    std::cout << (b == table) << std::endl; 
 
     table.print_table();
-
-    const Value v ("John" , 10);
-    const Value t ("John" , 20);
-    table.insert(v.name , v);
-    table.insert(t.name , t);
-    table.print_table();
+    b.print_table();
     return 0;
 }

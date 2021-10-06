@@ -1,4 +1,4 @@
-#define MIN_SIZE 2 // простое
+#define MIN_SIZE 13 // простое
 #define PRIME_1 7
 #define PRIME_2 11
 typedef std::string Key;

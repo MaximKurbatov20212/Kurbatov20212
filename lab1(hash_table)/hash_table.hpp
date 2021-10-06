@@ -15,23 +15,24 @@ private:
     Value* array;
     int size_; 
     int capacity_;
-public:
-    HashTable();
-    ~HashTable();
-    
+
     bool is_occupied(int pos);
-
-    HashTable& operator=(const HashTable& b);
-
-    HashTable(const HashTable& b);
-
-    void print_table();
 
     bool resize();
 
     int calc_main_hash(std::string expression);
 
     int calc_extra_hash(std::string expression);
+
+public:
+    HashTable();
+    ~HashTable();
+    
+    HashTable& operator=(const HashTable& b);
+
+    HashTable(const HashTable& b);
+
+    void print_table();
 
     void swap(HashTable& b);
 
@@ -54,7 +55,6 @@ public:
     size_t capacity() const ;//
 
     bool empty() const;//
-
 
     friend bool operator==(const HashTable& a, const HashTable& b);//
     friend bool operator!=(const HashTable& a, const HashTable& b);//

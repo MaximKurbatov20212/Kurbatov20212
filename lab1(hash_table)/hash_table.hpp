@@ -10,16 +10,17 @@ typedef struct Value {
     unsigned age;
 }Value;
 
-
 class HashTable {
 private:
     Value* array;
-    int size_;
+    int size_; 
     int capacity_;
 public:
     HashTable();
     ~HashTable();
+    
     bool is_occupied(int pos);
+
     HashTable& operator=(const HashTable& b);
 
     HashTable(const HashTable& b);
@@ -48,13 +49,13 @@ public:
 
     const Value& at(const Key& k) const;
   
-    size_t size() const ;
+    size_t size() const ;//
 
-    size_t capacity() const ;
+    size_t capacity() const ;//
 
-    bool empty() const;
+    bool empty() const;//
 
 
-    friend bool operator==(const HashTable& a, const HashTable& b);
-    friend bool operator!=(const HashTable& a, const HashTable& b);
+    friend bool operator==(const HashTable& a, const HashTable& b);//
+    friend bool operator!=(const HashTable& a, const HashTable& b);//
 };

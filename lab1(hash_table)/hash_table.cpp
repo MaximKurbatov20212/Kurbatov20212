@@ -15,9 +15,9 @@ HashTable::HashTable() {
     array = new Value[MIN_SIZE];
     for(int i = 0 ; i < MIN_SIZE ; i++) {
 
-        //Value(array[i]);
-        array[i].Value("dsaihd" , 10);
-        
+        //Value(array[i]); ?
+        //array[i].Value("dsaihd" , 10); ?
+
         array[i].name = "\0";
         array[i].age = 0;
     }
@@ -60,6 +60,7 @@ int HashTable::calc_extra_hash(std::string expression){
         p *= PRIME_2;
     }
     return (hash != 0) ? hash : 1; // step never is null
+    // проблема взаимнопростых чисел
 }
 
 HashTable::HashTable(const HashTable& b){
@@ -104,7 +105,7 @@ bool HashTable::resize() {
     delete[] array;
     array = array_1;
 
-    //rebuild_table();
+    //rebuild_table(); добавлю
 }
 bool HashTable::is_occupied(int pos) {
     if (array[pos].name == "\0") {
@@ -139,8 +140,9 @@ Value& HashTable::operator[](const Key& k) {
         }
     }
 }
-bool erase() {
-        
+bool HashTable::erase(const Key& k) {
+        // все или только один key?
+        // at - аналогично
 }
 
 void print_value(Value& a) {
@@ -165,7 +167,7 @@ bool operator==(const HashTable& a, const HashTable& b) {
 }
 
 bool operator!=(const HashTable& a, const HashTable& b) {
-    return !(a == b);
+    return !(a == b); // так можно?
 }
 
 bool HashTable::empty() const{
@@ -197,7 +199,7 @@ int main(){
     b.insert(t1.name , t1);
     b.insert(t2.name , t2);
     std::cout << (b == table) << std::endl; 
-
+    
     table.print_table();
     b.print_table();
     return 0;

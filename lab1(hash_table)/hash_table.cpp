@@ -121,6 +121,7 @@ bool HashTable::is_occupied(int pos) {
 bool HashTable::insert(const Key& k, const Value& v) {
     size_t hash = calc_hash(k);
     if (!is_occupied(hash)) {
+
         cells[hash] = new Cells(k, &v);
         return true;
     }
@@ -131,15 +132,19 @@ bool HashTable::insert(const Key& k, const Value& v) {
     return true;
 }
 
-// Value& HashTable::operator[](const Key& k) {
-//     int step = calc_extra_hash(k);
-//     int hash = calc_main_hash(k);
-//     for (int i = hash ; ; i += step ) {
-//         if (array[i].name == k) {
-//             return array[i];        
-//         }
-//     }
-// }
+Value& HashTable::operator[](const Key& k) {
+    int hash = calc_hash(k);
+    int temp = hash;
+    while(!is_occupied(hash)) {
+        hash = (hash + 1) % capacity_;
+        if(temp == hash) { // прошли цикл
+            std::cout << "there is no the same key" << std::endl;
+            assert(true);
+        }
+    }
+    return cells[hash]->value;
+}
+
 // bool HashTable::erase(const Key& k) {
 //         // все или только один key?
 //         // at - аналогично
@@ -149,33 +154,37 @@ bool HashTable::insert(const Key& k, const Value& v) {
 //     std::cout << "name: " << a.name << " age: "<< a.age << std::endl;
 // }
 
-// bool operator==(const HashTable& a, const HashTable& b) {
-//     if (a.size() != b.size()) {
-//         return false;
-//     }
+bool operator==(const HashTable& a, const HashTable& b) {
+    if (a.size() != b.size() || a.capacity() != b.capacity()) {
+        return false;
+    }
 
-//     else if (a.capacity() != b.capacity()){
-//         return false;
-//     }
+    for(int i = 0 ; i < a.capacity_ ; i++){
+        if (a.cells[i] == NULL && b.cells[i] == NULL){
+            continue;
+        }
 
-//     for(int i = 0 ; i < a.capacity_ ; i++){
-//         if (a.array[i].name != b.array[i].name || a.array[i].age != b.array[i].age){
-//                 return false;
-//         }
-//     }
-//     return true;
-// }
+        else if(a.cells[i] == NULL && b.cells[i] != NULL || b.cells[i] == NULL && a.cells[i] != NULL ) {
+            return false;
+        }
 
-// bool operator!=(const HashTable& a, const HashTable& b) {
-//     return !(a == b); // так можно?
-// }
+        else if (a.cells[i]->value != b.cells[i]->value || a.cells[i]->key != b.cells[i]->key){
+                return false;
+        }
+    }
+    return true;
+}
 
-// bool HashTable::empty() const{
-//     if (size_ == 0) {
-//         return true;
-//     }
-//     return false;    
-// }
+bool operator!=(const HashTable& a, const HashTable& b) {
+    return !(a == b); // так можно?
+}
+
+bool HashTable::empty() const{
+    if (size_ == 0) {
+        return true;
+    }
+    return false;    
+}
 
 int main() {
     HashTable table;
@@ -187,14 +196,13 @@ int main() {
     table.insert("hello", t);
 
     HashTable a;
-    const Value t0("Tom", 20);
-    const Value t1("Bim", 43);
-    a.insert("hello", t1);
-
-    a.insert("fhbs", t0);
-
+    a.insert("hello", t3);
+    a.insert("hello", t2);
+    a.insert("hello", t);
+    a.insert("dsa" , t3);
+    std::cout << (a == table) << std::endl;
     //a.print_table();
-    table.print_table();
+    //table.print_table();
 
     // table.swap(a);
 

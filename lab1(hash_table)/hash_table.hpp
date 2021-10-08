@@ -14,14 +14,15 @@
 
     struct Cells{
         Cells() = default;
-        Cells(Key k , const Value* v) : key(k), value(v) {}
-        const Value* value;
+        Cells(Key k , Value* v) : key(k), value(v) {}
+
+        Value* value;
         Key key;
     };
 
     class HashTable {
     private:
-        const Cells** cells;
+        Cells** cells;
         int size_; 
         int capacity_;
 

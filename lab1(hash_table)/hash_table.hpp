@@ -4,18 +4,24 @@
 
     typedef std::string Key;
 
+
     typedef struct Value {
         Value() = default;
         Value(std::string n, unsigned a = 0) : name(n), age(a) {}
-
         std::string name;
         unsigned age;
-        Key key;
     }Value;
+
+    struct Cells{
+        Cells() = default;
+        Cells(Key k , const Value* v) : key(k), value(v) {}
+        const Value* value;
+        Key key;
+    };
 
     class HashTable {
     private:
-        const Value** array;
+        const Cells** cells;
         int size_; 
         int capacity_;
 

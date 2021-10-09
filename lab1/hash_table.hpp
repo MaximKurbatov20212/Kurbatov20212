@@ -32,7 +32,7 @@ private:
 
     bool resize();
 
-    int calc_hash(std::string expression);//+
+    int calc_hash(const Key& k);//+
 
     void init_cells(const Cells** cells);
 

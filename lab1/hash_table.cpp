@@ -1,3 +1,4 @@
+#define NDEBUG
 #include <iostream>
 #include "hash_table.hpp"
 #include <cmath>
@@ -46,7 +47,7 @@ size_t HashTable::capacity() const {
     return capacity_;
 }
 
-int HashTable::calc_hash(std::string expression) {
+int HashTable::calc_hash(const Key& expression) {
     int len = expression.length();
     int p = 1;
     unsigned int hash;
@@ -159,17 +160,49 @@ Value& HashTable::operator[](const Key& k) {
     while (!is_occupied(hash)) {
         hash = (hash + 1) % capacity_;
         if (temp == hash) { // прошли цикл
-            std::cout << "there is no same key" << std::endl;
-            assert(true);
+            while (!is_occupied(hash)){
+                if(!is_occupied(hash)){
+                    cells[hash] = new const Cells(k , NULL);
+                    return *(Value*)(cells[hash]->value);
+                }
+                hash = (hash + 1) % capacity_;
+                
+            }
         }
     }
     return *(Value*)(cells[hash]->value);
 }
 
-// bool HashTable::erase(const Key& k) {
-//         // все или только один key?
-//         // at - аналогично
-// }
+bool HashTable::erase(const Key& k) {
+    int hash = calc_hash(k);
+    int temp = hash;
+    while(true) {
+        if(cells[hash] != NULL && cells[hash]->key == k) {
+            delete cells[hash];
+            cells[hash] = NULL;
+            size_--;
+            return true;
+        }
+        hash = (hash + 1) % capacity_;
+        if(hash == temp)
+            return false;// прошли цикл
+    }
+}
+
+Value& HashTable::at(const Key&k){
+    int hash = calc_hash(k);
+    int temp = hash;
+    while(true){
+        if(hash == temp){
+            std::cout << "there is no same key";
+            assert(hash == true);
+        }
+        else if(is_occupied(hash) && cells[hash]->key == k){
+            return *((Value*)cells[hash]->value);
+        }
+        hash = (hash + 1) % capacity_;
+    }
+}
 
 void print_value(Value& a) {
     std::cout << "name: " << a.name << " age: " << a.age << std::endl;
@@ -220,6 +253,10 @@ int main() {
     table.insert("dsa", t4);
     table.insert("fsas", t5);
     table.print_table();
+    table.at("sa");
+    table.erase("qd");
+    table.print_table();
+
     // HashTable a;
     // a.insert("hello", t3);
     // a.insert("hello", t2);

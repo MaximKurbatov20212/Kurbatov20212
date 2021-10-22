@@ -26,6 +26,10 @@ private:
     int size_;
     int capacity_;
 
+    void free_cells();
+
+    void copy_cells(const Cells** to, const Cells** from, int capacity);
+
     void rebuld_table(const Cells** array);//+
 
     bool is_occupied(int pos);//+
@@ -81,7 +85,7 @@ public:
     Value& at(const Key& k);//+
     // Returns link for exist value in table, if there is cell with key k
     // Create new value with key k, if there is not cell with key k
-    
+
     const Value& at(const Key& k) const;//+
     // Returns constant link for exist value in table, if there is cell with key k
     // Create new value with key k, if there is not cell with key k

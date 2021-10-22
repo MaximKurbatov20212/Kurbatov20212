@@ -51,7 +51,7 @@ TEST(MYTESTS , insert_many_values) {
     HashTable table;
     size_t range = rand() % 100;
     for(int i = 0 ; i < range ; i++){
-        const Value a( gen_rand(rand() % 20) , rand() % 100);
+        const Value a(gen_rand(rand() % 20) , rand() % 100);
         table.insert( gen_rand(rand() % 20) , a);
     }
     EXPECT_EQ(table.size() , range);
@@ -97,15 +97,15 @@ TEST(MYTESTS , is_not_empty_1) {
     EXPECT_EQ(table.empty() , 0);
 }
 
-TEST(MYTESTS , is_not_empty_2) {
-    HashTable table;
-    std::string key = gen_rand(rand() % 20);
-    for( int i = 0 ; i < 1000 ; i++){
-        const Value t(key, rand() % 20);
-        table.insert(key, t);
-    }
-    EXPECT_EQ(table.empty() , 0);
-}
+// TEST(MYTESTS , is_not_empty_2) {
+//     HashTable table;
+//     std::string key = gen_rand(rand() % 20);
+//     for( int i = 0 ; i < 1000 ; i++){
+//         const Value t(key, rand() % 20);
+//         table.insert(key, t);
+//     }
+//     EXPECT_EQ(table.empty() , 0);
+// }
 
 
 //contains
@@ -215,6 +215,48 @@ TEST(MYTESTS , erase_couple_equal_value) {
     table.erase("hello");
     EXPECT_EQ(table.size() , 1);
 }
+
+// operator=
+
+TEST(MYTESTS , operator_1) {
+    HashTable table;
+    HashTable table_1 = table;
+    EXPECT_EQ(table_1 == table , 1);
+}   
+
+TEST(MYTESTS , operator_2) {
+    HashTable table;
+    const Value a("Mark", 10);
+    const Value b("Mark", 10);
+    table.insert("dsaf", a);
+    table.insert("dsadsf", b); 
+    HashTable table_1 = table;
+    EXPECT_EQ((table_1 == table), 1);
+}   
+
+TEST(MYTESTS , operator_large_test) {
+    HashTable table;
+    for(int i = 0 ; i < 100000000 ; i++){
+        const Value a(gen_rand(rand() % 20), 10);
+        table.insert(gen_rand(rand() % 20), a);
+    }
+    HashTable table_1 = table;
+    EXPECT_EQ(table_1 == table , 1);
+}  
+
+// // at
+
+TEST(MYTESTS , at_not_exist_value_creating_new_cell) {
+    HashTable table;
+    table.at(gen_rand(rand() % 20));
+    EXPECT_EQ(table.size() , 1);
+}   
+
+TEST(MYTESTS , at_not_exist_value_creating_new_cell_1) {
+    HashTable table;
+    std::string key = gen_rand(rand() % 20);
+    EXPECT_EQ(table.at(key).name == table[key].name , 1);
+}   
 
 
 

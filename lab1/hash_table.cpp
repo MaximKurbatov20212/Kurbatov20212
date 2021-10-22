@@ -3,6 +3,15 @@
 #include <cmath>
 #include <cassert>
 
+void HashTable::free_cells() {
+    for (int i = 0; i < capacity_; i++) {
+        if (cells[i] != NULL) {
+            delete cells[i];
+        }
+    }
+    //delete[] cells;
+}
+
 void HashTable::print_table() {
     std::cout << "Table" << std::endl;
     for (int i = 0; i < capacity_; i++) {
@@ -23,19 +32,14 @@ void HashTable::init_cells(const Cells** cells) {
 }
 
 HashTable::HashTable() {
-    //array = (const Value**)calloc(MIN_SIZE , sizeof(Value*));
-
     cells = new const Cells * [MIN_SIZE];
     size_ = 0;
     capacity_ = MIN_SIZE;
-    //std::cout << array;
     init_cells(cells);
-    //std::cout << "Ctor" << std::endl;
 }
 
 HashTable::~HashTable() {
-    //std::cout << "Dtor" << std::endl;
-    delete[] cells;
+    free_cells();
 }
 
 size_t HashTable::size() const {
@@ -46,12 +50,12 @@ size_t HashTable::capacity() const {
     return capacity_;
 }
 
-int HashTable::calc_hash(std::string expression) const{
+int HashTable::calc_hash(std::string expression) const {
     int len = expression.length();
     int p = 1;
     unsigned int hash;
     for (int i = 0; i < len; i++) {
-        hash = (expression[i] * p) % capacity();
+        hash = (expression[i] * p) % capacity_;
         p *= PRIME_1;
     }
     return hash;
@@ -59,18 +63,20 @@ int HashTable::calc_hash(std::string expression) const{
 
 HashTable::HashTable(const HashTable& b) {
     cells = new const Cells * [b.capacity_];
-    std::copy(b.cells, b.cells + b.capacity_, cells);
+    init_cells(cells);
     capacity_ = b.capacity_;
     size_ = b.size_;
+    copy_cells(cells, b.cells, b.capacity_);
+
 }
 
 HashTable& HashTable::operator=(const HashTable& b) {
     if (this != &b) {
-        delete[] cells;
+        free_cells();
         size_ = b.size_;
         capacity_ = b.capacity_;
         cells = new const Cells * [b.capacity_];
-        std::copy(b.cells, b.cells + b.capacity_, cells);
+        copy_cells(cells , b.cells , b.capacity_);
     }
     return *this;
 }
@@ -93,7 +99,7 @@ void HashTable::swap(HashTable& b) {
 }
 
 void HashTable::clear() {
-    delete[] this->cells;
+    free_cells();
     cells = new const Cells * [capacity_];
     init_cells(cells);
 }
@@ -106,24 +112,38 @@ void HashTable::rebuld_table(const Cells** array) {
     }
 }
 
-bool HashTable::resize() {
-    //std::cout << "resize\n";
+void HashTable::copy_cells(const Cells** to , const Cells** from , int capacity) {
+    for (int i = 0; i < capacity; i++) {
+        to[i] = NULL;
+        if (from[i] != NULL) {
+            to[i] = new const Cells(from[i]->key, from[i]->value);
+        }
+    }
+}
 
+bool HashTable::resize() {
     const Cells** array = new const Cells * [capacity_];
     if (array == NULL)
         return false;
 
     init_cells(array);
-    std::copy(cells, cells + capacity_, array);
 
-    delete[] cells;
+    copy_cells(array , cells, capacity_);
+
+    free_cells();
+    cells = new const Cells * [capacity_ * 2];
     capacity_ *= 2;
-    cells = new const Cells * [capacity_];
     init_cells(cells);
 
     rebuld_table(array); // there are nothing bags
 
-    delete[] array;
+    for (int i = 0; i < capacity_ / 2; i++) {
+        if (array[i] != NULL) {
+            delete array[i];
+        }
+    }
+    //delete[] array;
+
     return true;
 }
 
@@ -137,7 +157,7 @@ bool HashTable::is_occupied(int pos) {
 
 bool HashTable::insert(const Key& k, const Value& v) {
     if (size_ == capacity_) {
-        if(!resize()){
+        if (!resize()) {
             assert(false);
         }
     }
@@ -153,14 +173,14 @@ bool HashTable::insert(const Key& k, const Value& v) {
 }
 
 Value& HashTable::operator[](const Key& k) {
-    if(contains(k)){
+    if (contains(k)) {
         int hash = calc_hash(k);
-        while(cells[hash]->key != k){
+        while (cells[hash]->key != k) {
             hash = (hash + 1) % capacity_;
         }
-            return *(Value*)(cells[hash]->value);
+        return *(Value*)(cells[hash]->value);
     }
-    std::cerr << "there is no same key" << std::endl;
+    //std::cerr << "there is no same key" << std::endl;
     assert(false);
 }
 
@@ -168,59 +188,59 @@ bool HashTable::contains(const Key& k) const {
     int hash = calc_hash(k);
     int temp = hash;
     do {
-        if(cells[hash] == NULL){
+        if (cells[hash] == NULL) {
             return false;
-        } 
-        else if(cells[hash]->key == k) {
+        }
+        else if (cells[hash]->key == k) {
             return true;
         }
         hash = (hash + 1) % capacity_;
-    } while(temp != hash);
+    } while (temp != hash);
 
     return false;
-}   
+}
 
 bool HashTable::erase(const Key& k) {
-    if(contains(k)){
+    if (contains(k)) {
         int hash = calc_hash(k);
-        while(cells[hash]->key != k){
+        while (cells[hash]->key != k) {
             hash = (hash + 1) % capacity_;
         }
         delete cells[hash];
+        cells[hash] = NULL;
         size_--;
         return true;
     }
     return false;
 }
 
-Value& HashTable::at(const Key& k){
+Value& HashTable::at(const Key& k) {
     int hash = calc_hash(k);
 
-    if (contains(k)){
-        while(cells[hash]->key != k){
+    if (contains(k)) {
+        while (cells[hash]->key != k) {
             hash = (hash + 1) % capacity_;
         }
         return *(Value*)(cells[hash]->value);
     }
-    
-    cells[hash] = new Cells(k , NULL);
+
+    cells[hash] = new Cells(k, NULL);
     return *(Value*)(cells[hash]->value);
 }
 
-const Value& HashTable::at(const Key& k) const{
+const Value& HashTable::at(const Key& k) const {
     int hash = calc_hash(k);
 
-    if (contains(k)){
-        while(cells[hash]->key != k){
+    if (contains(k)) {
+        while (cells[hash]->key != k) {
             hash = (hash + 1) % capacity_;
         }
         return *(cells[hash]->value);
     }
-    
-    cells[hash] = new Cells(k , NULL);
+
+    cells[hash] = new Cells(k, NULL);
     return *(cells[hash]->value);
 }
-
 
 void print_value(Value& a) {
     std::cout << "name: " << a.name << " age: " << a.age << std::endl;
@@ -257,3 +277,4 @@ bool HashTable::empty() const {
     }
     return false;
 }
+

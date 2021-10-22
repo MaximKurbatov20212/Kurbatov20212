@@ -30,11 +30,11 @@ HashTable::HashTable() {
     capacity_ = MIN_SIZE;
     //std::cout << array;
     init_cells(cells);
-    std::cout << "Ctor" << std::endl;
+    //std::cout << "Ctor" << std::endl;
 }
 
 HashTable::~HashTable() {
-    std::cout << "Dtor" << std::endl;
+    //std::cout << "Dtor" << std::endl;
     delete[] cells;
 }
 
@@ -137,7 +137,9 @@ bool HashTable::is_occupied(int pos) {
 
 bool HashTable::insert(const Key& k, const Value& v) {
     if (size_ == capacity_) {
-        resize();
+        if(!resize()){
+            assert(false);
+        }
     }
     int hash = calc_hash(k);
 
@@ -185,6 +187,7 @@ bool HashTable::erase(const Key& k) {
             hash = (hash + 1) % capacity_;
         }
         delete cells[hash];
+        size_--;
         return true;
     }
     return false;
@@ -254,4 +257,3 @@ bool HashTable::empty() const {
     }
     return false;
 }
-

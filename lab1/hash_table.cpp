@@ -50,24 +50,25 @@ size_t HashTable::capacity() const {
     return capacity_;
 }
 
-int HashTable::calc_hash(std::string expression) const {
+unsigned int HashTable::calc_hash(std::string expression) const {
     int len = expression.length();
     int p = 1;
-    unsigned int hash;
+    unsigned int hash = 0;
     for (int i = 0; i < len; i++) {
-        hash = (expression[i] * p) % capacity_;
+        hash =  (hash + expression[i] * p) % capacity_;
         p *= PRIME_1;
+        if (p > 0) 
+            p = 1;
     }
     return hash;
 }
 
 HashTable::HashTable(const HashTable& b) {
     cells = new const Cells * [b.capacity_];
-    init_cells(cells);
     capacity_ = b.capacity_;
     size_ = b.size_;
+    init_cells(cells);
     copy_cells(cells, b.cells, b.capacity_);
-
 }
 
 HashTable& HashTable::operator=(const HashTable& b) {
@@ -149,7 +150,6 @@ bool HashTable::resize() {
 
 bool HashTable::is_occupied(int pos) {
     if (cells[pos] == NULL) {
-        cells[pos] = new Cells;
         return false;
     }
     return true;
@@ -161,27 +161,31 @@ bool HashTable::insert(const Key& k, const Value& v) {
             assert(false);
         }
     }
+
     int hash = calc_hash(k);
 
-    while (is_occupied(hash)) {
+    while (is_occupied(hash)){
         hash = (hash + 1) % capacity_;
     }
 
     size_++;
     cells[hash] = new const Cells(k, &v);
+    if (cells[hash] == NULL)
+        std::cout << "hello";
     return true;
 }
 
 Value& HashTable::operator[](const Key& k) {
+    int hash = calc_hash(k);
     if (contains(k)) {
-        int hash = calc_hash(k);
         while (cells[hash]->key != k) {
             hash = (hash + 1) % capacity_;
         }
         return *(Value*)(cells[hash]->value);
     }
-    //std::cerr << "there is no same key" << std::endl;
-    assert(false);
+    static Value v("", 0);
+    cells[hash] = new Cells(k, &v);
+    return *(Value*)(cells[hash]->value);
 }
 
 bool HashTable::contains(const Key& k) const {
@@ -215,31 +219,25 @@ bool HashTable::erase(const Key& k) {
 }
 
 Value& HashTable::at(const Key& k) {
-    int hash = calc_hash(k);
-
     if (contains(k)) {
+        int hash = calc_hash(k);
         while (cells[hash]->key != k) {
             hash = (hash + 1) % capacity_;
         }
         return *(Value*)(cells[hash]->value);
     }
-
-    cells[hash] = new Cells(k, NULL);
-    return *(Value*)(cells[hash]->value);
+    assert(false);
 }
 
 const Value& HashTable::at(const Key& k) const {
-    int hash = calc_hash(k);
-
     if (contains(k)) {
+        int hash = calc_hash(k);
         while (cells[hash]->key != k) {
             hash = (hash + 1) % capacity_;
         }
         return *(cells[hash]->value);
     }
-
-    cells[hash] = new Cells(k, NULL);
-    return *(cells[hash]->value);
+    assert(false);
 }
 
 void print_value(Value& a) {
@@ -247,7 +245,10 @@ void print_value(Value& a) {
 }
 
 bool operator==(const HashTable& a, const HashTable& b) {
-    if (a.size() != b.size() || a.capacity() != b.capacity()) {
+    if (a.size() == 0 && b.size() == 0) {
+        return true;
+    }
+    if (a.size() != b.size() || a.capacity() != b.capacity() ) {
         return false;
     }
 
@@ -277,4 +278,3 @@ bool HashTable::empty() const {
     }
     return false;
 }
-

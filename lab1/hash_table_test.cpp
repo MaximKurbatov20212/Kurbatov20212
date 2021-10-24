@@ -234,29 +234,68 @@ TEST(MYTESTS , operator_2) {
     EXPECT_EQ((table_1 == table), 1);
 }   
 
-TEST(MYTESTS , operator_large_test) {
-    HashTable table;
-    for(int i = 0 ; i < 100000000 ; i++){
-        const Value a(gen_rand(rand() % 20), 10);
-        table.insert(gen_rand(rand() % 20), a);
-    }
-    HashTable table_1 = table;
-    EXPECT_EQ(table_1 == table , 1);
-}  
+
 
 // // at
 
 TEST(MYTESTS , at_not_exist_value_creating_new_cell) {
     HashTable table;
-    table.at(gen_rand(rand() % 20));
-    EXPECT_EQ(table.size() , 1);
+    ASSERT_DEATH(table.at(gen_rand(rand() % 20)), "Assertion * failed.");
 }   
 
-TEST(MYTESTS , at_not_exist_value_creating_new_cell_1) {
+// TEST(MYTESTS , at_not_exist_value_creating_new_cell_1) {
+//     HashTable table;
+//     std::string key = gen_rand(rand() % 20);
+//     EXPECT_EQ(table[key].name == table.at(key).name  , 1);
+// }   
+
+//operator=
+TEST(MYTESTS , assign_empty_table_to_empty_table) {
     HashTable table;
-    std::string key = gen_rand(rand() % 20);
-    EXPECT_EQ(table.at(key).name == table[key].name , 1);
+    HashTable table_1;
+    table_1 = table;
+    EXPECT_EQ( table == table_1, 1);
 }   
+
+TEST(MYTESTS , assign_empty_table_to_not_empty_table ) {
+    HashTable table;
+    HashTable table_1;
+    const Value c(gen_rand(rand() % 20), 10);
+    table.insert(gen_rand(rand() % 20), c); 
+    table_1 = table;
+    EXPECT_EQ( table == table_1, 1);
+}   
+
+TEST(MYTESTS , assign_not_empty_table_to_empty_table ) {
+    HashTable table;
+    HashTable table_1;
+    const Value c(gen_rand(rand() % 20), 10);
+    table.insert(gen_rand(rand() % 20), c); 
+    table = table_1;
+    EXPECT_EQ( table == table_1, 1);
+}   
+TEST(MYTESTS , assign_not_empty_table_to_not_empty_table) {
+    HashTable table;
+    const Value a(gen_rand(rand() % 20), 10);
+    const Value b(gen_rand(rand() % 20), 10);
+    table.insert(gen_rand(rand() % 20), a);
+    table.insert(gen_rand(rand() % 20), b); 
+    HashTable table_1;
+    const Value c(gen_rand(rand() % 20), 10);
+    table.insert(gen_rand(rand() % 20), c); 
+    table_1 = table;
+    EXPECT_EQ( table == table_1, 1);
+}   
+
+// TEST(MYTESTS , operator_large_test) {
+//     HashTable table;
+//     for(int i = 0 ; i < 100000 ; i++){
+//         const Value a(gen_rand(rand() % 20), 10);
+//         table.insert(gen_rand(rand() % 20), a);
+//     }
+//     HashTable table_1 = table;
+//     EXPECT_EQ(table_1 == table , 1);
+// }  
 
 
 

@@ -36,7 +36,7 @@ private:
 
     bool resize();//+
 
-    int calc_hash(std::string expression) const;//+
+    unsigned int calc_hash(std::string expression) const;//+
 
     void init_cells(const Cells** cells);//+
 

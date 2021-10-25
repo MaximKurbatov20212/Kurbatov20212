@@ -62,7 +62,7 @@ public:
     // Delete all cells and init their again.
 
     bool erase(const Key& k);//+
-    // Delete first cell in table with equal key
+    // Delete first cell in the table with equal key
     // Returns true, if there is cell with current key
     // Returns false, if there is not cell with current key
 
@@ -74,28 +74,28 @@ public:
 
     bool contains(const Key& k) const; //+
     // Return true, if table contains cell with key k
-    // Return false,  if there is not cell with key k
+    // Return false, if there is not cell with key k
 
 
     Value& operator[](const Key& k);//+
-    // Returns  link for exist value in table, if there is cell with key k
+    // Returns link to exist value in the table, if there is cell with key k
     // Create new value with key k, name = "", age = 0, if there is not cell with key k
 
 
     Value& at(const Key& k);//+
-    // Returns link for exist value in table, if there is cell with key k
+    // Returns link to exist value in the table, if there is cell with key k
     // Assert if there is not cell with such key
 
     const Value& at(const Key& k) const;//+
-    // Returns constant link for exist value in table, if there is cell with key k
+    // Returns constant link to exist value in the table, if there is cell with key k
     // Assert if there is not cell with such key
 
 
     size_t size() const;//+
-    // Returns count of not empty cells in table
+    // Returns count of not empty cells in the table
 
     size_t capacity() const;//+
-    // Return count of all cells in table
+    // Return count of all cells in the table
 
     bool empty() const;//+
     // Returns true, if table has not initialazed cells.

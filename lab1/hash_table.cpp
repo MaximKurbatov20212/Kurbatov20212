@@ -9,20 +9,20 @@ void HashTable::free_cells() {
             delete cells[i];
         }
     }
-    //delete[] cells;
+    delete[] cells;
 }
 
 void HashTable::print_table() {
-    std::cout << "Table" << std::endl;
-    for (int i = 0; i < capacity_; i++) {
-        if (cells[i]) {
-            std::cout << "name: " << cells[i]->value->name << " age: " << cells[i]->value->age << std::endl;
-        }
-        else {
-            std::cout << "There is noting in " << i << std::endl;
-        }
-    }
-    std::cout << std::endl;
+   std::cout << "Table" << std::endl;
+   for (int i = 0; i < capacity_; i++) {
+       if (cells[i]) {
+           std::cout << "name: " << cells[i]->value.name << " age: " << cells[i]->value.age << std::endl;
+       }
+       else {
+           std::cout << "There is noting in " << i << std::endl;
+       }
+   }
+   std::cout << std::endl;
 }
 
 void HashTable::init_cells(const Cells** cells) {
@@ -55,9 +55,9 @@ unsigned int HashTable::calc_hash(std::string expression) const {
     int p = 1;
     unsigned int hash = 0;
     for (int i = 0; i < len; i++) {
-        hash =  (hash + expression[i] * p) % capacity_;
+        hash = (hash + expression[i] * p) % capacity_;
         p *= PRIME_1;
-        if (p > 0) 
+        if (p > 0)
             p = 1;
     }
     return hash;
@@ -77,7 +77,7 @@ HashTable& HashTable::operator=(const HashTable& b) {
         size_ = b.size_;
         capacity_ = b.capacity_;
         cells = new const Cells * [b.capacity_];
-        copy_cells(cells , b.cells , b.capacity_);
+        copy_cells(cells, b.cells, b.capacity_);
     }
     return *this;
 }
@@ -101,6 +101,7 @@ void HashTable::swap(HashTable& b) {
 
 void HashTable::clear() {
     free_cells();
+    size_ = 0;
     cells = new const Cells * [capacity_];
     init_cells(cells);
 }
@@ -109,11 +110,11 @@ void HashTable::rebuld_table(const Cells** array) {
     size_ = 0;
     for (int i = 0; i < capacity_ / 2; i++) {
         if (array[i] != NULL)
-            insert(array[i]->key, *(array[i]->value));
+            insert(array[i]->key, (array[i]->value));
     }
 }
 
-void HashTable::copy_cells(const Cells** to , const Cells** from , int capacity) {
+void HashTable::copy_cells(const Cells** to, const Cells** from, int capacity) {
     for (int i = 0; i < capacity; i++) {
         to[i] = NULL;
         if (from[i] != NULL) {
@@ -129,7 +130,7 @@ bool HashTable::resize() {
 
     init_cells(array);
 
-    copy_cells(array , cells, capacity_);
+    copy_cells(array, cells, capacity_);
 
     free_cells();
     cells = new const Cells * [capacity_ * 2];
@@ -143,7 +144,7 @@ bool HashTable::resize() {
             delete array[i];
         }
     }
-    //delete[] array;
+    delete[] array;
 
     return true;
 }
@@ -164,12 +165,12 @@ bool HashTable::insert(const Key& k, const Value& v) {
 
     int hash = calc_hash(k);
 
-    while (is_occupied(hash)){
+    while (is_occupied(hash)) {
         hash = (hash + 1) % capacity_;
     }
 
     size_++;
-    cells[hash] = new const Cells(k, &v);
+    cells[hash] = new const Cells(k, v);
     if (cells[hash] == NULL)
         std::cout << "hello";
     return true;
@@ -178,24 +179,22 @@ bool HashTable::insert(const Key& k, const Value& v) {
 Value& HashTable::operator[](const Key& k) {
     int hash = calc_hash(k);
     if (contains(k)) {
-        while (cells[hash]->key != k) {
+        while (cells[hash] == NULL || cells[hash]->key != k) { // go to first cell with key k
             hash = (hash + 1) % capacity_;
         }
-        return *(Value*)(cells[hash]->value);
+        return (Value&)(cells[hash]->value);
     }
+    size_++;
     static Value v("", 0);
-    cells[hash] = new Cells(k, &v);
-    return *(Value*)(cells[hash]->value);
+    cells[hash] = new Cells(k, v);
+    return (Value&)(cells[hash]->value);
 }
 
 bool HashTable::contains(const Key& k) const {
     int hash = calc_hash(k);
     int temp = hash;
     do {
-        if (cells[hash] == NULL) {
-            return false;
-        }
-        else if (cells[hash]->key == k) {
+        if (cells[hash] != NULL && cells[hash]->key == k) {
             return true;
         }
         hash = (hash + 1) % capacity_;
@@ -207,7 +206,7 @@ bool HashTable::contains(const Key& k) const {
 bool HashTable::erase(const Key& k) {
     if (contains(k)) {
         int hash = calc_hash(k);
-        while (cells[hash]->key != k) {
+        while (cells[hash] == NULL || cells[hash]->key != k) {
             hash = (hash + 1) % capacity_;
         }
         delete cells[hash];
@@ -221,10 +220,10 @@ bool HashTable::erase(const Key& k) {
 Value& HashTable::at(const Key& k) {
     if (contains(k)) {
         int hash = calc_hash(k);
-        while (cells[hash]->key != k) {
+        while (cells[hash] == NULL || cells[hash]->key != k) {
             hash = (hash + 1) % capacity_;
         }
-        return *(Value*)(cells[hash]->value);
+        return (Value&)(cells[hash]->value);
     }
     assert(false);
 }
@@ -232,10 +231,10 @@ Value& HashTable::at(const Key& k) {
 const Value& HashTable::at(const Key& k) const {
     if (contains(k)) {
         int hash = calc_hash(k);
-        while (cells[hash]->key != k) {
+        while (cells[hash] == NULL || cells[hash]->key != k) {
             hash = (hash + 1) % capacity_;
         }
-        return *(cells[hash]->value);
+        return (Value&)(cells[hash]->value);
     }
     assert(false);
 }
@@ -248,7 +247,7 @@ bool operator==(const HashTable& a, const HashTable& b) {
     if (a.size() == 0 && b.size() == 0) {
         return true;
     }
-    if (a.size() != b.size() || a.capacity() != b.capacity() ) {
+    if (a.size() != b.size() || a.capacity() != b.capacity()) {
         return false;
     }
 
@@ -261,7 +260,7 @@ bool operator==(const HashTable& a, const HashTable& b) {
             return false;
         }
 
-        else if (a.cells[i]->value != b.cells[i]->value || a.cells[i]->key != b.cells[i]->key) {
+        else if (a.cells[i]->value.name != b.cells[i]->value.name || a.cells[i]->value.age != b.cells[i]->value.age || a.cells[i]->key != b.cells[i]->key) {
             return false;
         }
     }

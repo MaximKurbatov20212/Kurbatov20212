@@ -15,8 +15,8 @@ typedef struct Value {
 
 struct Cells {
     Cells() = default;
-    Cells(Key k, const Value* v) : key(k), value(v) {}
-    const Value* value;
+    Cells(Key k, const Value v) : key(k), value(v) {}
+    const Value value;
     Key key;
 };
 
@@ -78,17 +78,18 @@ public:
 
 
     Value& operator[](const Key& k);//+
-    // Returns link for exist value in table, if there is cell with key k
-    // Assert if there is not cell with such key
+    // Returns  link for exist value in table, if there is cell with key k
+    // Create new value with key k, name = "", age = 0, if there is not cell with key k
 
 
     Value& at(const Key& k);//+
     // Returns link for exist value in table, if there is cell with key k
-    // Create new value with key k, if there is not cell with key k
+    // Assert if there is not cell with such key
 
     const Value& at(const Key& k) const;//+
     // Returns constant link for exist value in table, if there is cell with key k
-    // Create new value with key k, if there is not cell with key k
+    // Assert if there is not cell with such key
+
 
     size_t size() const;//+
     // Returns count of not empty cells in table

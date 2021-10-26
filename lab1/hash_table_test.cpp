@@ -12,7 +12,7 @@ bool compare(const Value& a , const Value& b ){
 }
 
 // random string
-std::string gen_rand(const int len) {
+std::string gen_str(const int len) {
     std::string tmp_s;
     static const char alphanum[] =
         "0123456789"
@@ -37,15 +37,15 @@ TEST(MYTESTS , initial_size_is_zero) {
 
 TEST(MYTESTS , insert_one_value) {
     HashTable table;
-    const Value t(gen_rand(rand() % 20), 21);
-    table.insert(gen_rand(rand() % 20), t);
+    const Value t(gen_str(rand() % 20), 21);
+    table.insert(gen_str(rand() % 20), t);
     EXPECT_EQ(table.size() , 1);
 }
 
 TEST(MYTESTS , insert_two_equal_value) {
     HashTable table;
-    std::string str = gen_rand(rand() % 20);
-    std::string key = gen_rand(rand() % 20);
+    std::string str = gen_str(rand() % 20);
+    std::string key = gen_str(rand() % 20);
     const Value a(str, 20);
     const Value b(str, 20);
     table.insert(key, a);
@@ -57,8 +57,8 @@ TEST(MYTESTS , insert_many_values) {
     HashTable table;
     size_t range = rand() % 100;
     for(int i = 0 ; i < range ; i++){
-        const Value a(gen_rand(rand() % 20) , rand() % 100);
-        table.insert( gen_rand(rand() % 20) , a);
+        const Value a(gen_str(rand() % 20) , rand() % 100);
+        table.insert( gen_str(rand() % 20) , a);
     }
     EXPECT_EQ(table.size() , range);
 }
@@ -75,8 +75,8 @@ TEST(MYTESTS , couple_of_equial_value) {
 // TEST(MYTESTS , memory) {
 //     HashTable table;
 //     for(long long i = 0 ; i < LLONG_MAX ; i++){
-//         const Value a( gen_rand(rand() % 20) , rand() % 100);
-//         ASSERT_DEATH(table.insert( gen_rand(rand() % 20) , a), "Assertion failed.*");
+//         const Value a( gen_str(rand() % 20) , rand() % 100);
+//         ASSERT_DEATH(table.insert( gen_str(rand() % 20) , a), "Assertion failed.*");
 //     }
 // }
 
@@ -88,7 +88,7 @@ TEST(MYTESTS , is_empty_1) {
 
 TEST(MYTESTS , is_empty_2_insert_and_erase) {
     HashTable table;
-    std::string key = gen_rand(rand() % 20);
+    std::string key = gen_str(rand() % 20);
     const Value t(key, rand() % 20);
     table.insert(key, t);
     table.erase(key);
@@ -97,15 +97,15 @@ TEST(MYTESTS , is_empty_2_insert_and_erase) {
 
 TEST(MYTESTS , is_not_empty_1) {
     HashTable table;
-    std::string key = gen_rand(rand() % 20);
-    const Value t(gen_rand(rand() % 20), rand() % 20);
+    std::string key = gen_str(rand() % 20);
+    const Value t(gen_str(rand() % 20), rand() % 20);
     table.insert(key, t);
     EXPECT_EQ(table.empty() , 0);
 }
 
 TEST(MYTESTS , is_not_empty_2) {
     HashTable table;
-    std::string key = gen_rand(rand() % 20);
+    std::string key = gen_str(rand() % 20);
     for( int i = 0 ; i < 1000 ; i++){
         const Value t(key, rand() % 20);
         table.insert(key, t);
@@ -117,8 +117,8 @@ TEST(MYTESTS , is_not_empty_2) {
 //contains
 TEST(MYTESTS , contains) {
     HashTable table;
-    std::string key = gen_rand(rand() % 20);
-    const Value t(gen_rand(rand() % 20), 10);
+    std::string key = gen_str(rand() % 20);
+    const Value t(gen_str(rand() % 20), 10);
     table.insert(key, t);
     EXPECT_EQ(table.contains(key) , 1);
 }
@@ -154,7 +154,7 @@ TEST(MYTESTS , are_not_equal) {
     HashTable table;
     HashTable table_1;    
     const Value a("Mark", 10);
-    table_1.insert(gen_rand(rand() % 20), a);
+    table_1.insert(gen_str(rand() % 20), a);
     EXPECT_EQ(table == table_1 , 0);
 }
 
@@ -189,7 +189,7 @@ TEST(MYTESTS , are_not_equal_3) {
 //erase
 TEST(MYTESTS , erase_to_empty_table) {
     HashTable table;
-    table.erase(gen_rand(rand() % 20));
+    table.erase(gen_str(rand() % 20));
     EXPECT_EQ(table.size() , 0);
 }
 TEST(MYTESTS , erase_exists_cell) {
@@ -222,7 +222,7 @@ TEST(MYTESTS , erase_couple_equal_value) {
     EXPECT_EQ(table.size() , 1);
 }
 
-// operator=
+// copy ctor
 
 TEST(MYTESTS , assign_and_compare_empty_tables) {
     HashTable table;
@@ -239,6 +239,27 @@ TEST(MYTESTS , assign_and_compare_not_empty_tables) {
     HashTable table_1 = table;
     EXPECT_TRUE(table_1 == table);
 }   
+
+//operator =
+TEST(MYTESTS , assign_and_compare_empty_tables) {
+    HashTable table;
+    HashTable table_1;
+    table_1 = table;
+    EXPECT_TRUE(table_1 == table );
+}   
+
+TEST(MYTESTS , assign_and_compare_not_empty_tables) {
+    HashTable table;
+    const Value a("Mark", 10);
+    const Value b("Mark", 10);
+    table.insert("dsaf", a);
+    table.insert("dsadsf", b); 
+    HashTable table_1;
+    table_1.insert("dsaf", a);
+    table_1.insert("dsadsf", b); 
+    table_1 = table;
+    EXPECT_TRUE(table_1 == table);
+}  
 
 //operator !=
 TEST(MYTESTS , assign_and_compare_empty_tables_1) {
@@ -262,29 +283,29 @@ TEST(MYTESTS , assign_and_compare_not_empty_tables_2) {
 
 TEST(MYTESTS , at_not_exist_value_creating_new_cell) {
     HashTable table;
-    ASSERT_DEATH(table.at(gen_rand(rand() % 20)) , "");
+    ASSERT_DEATH(table.at(gen_str(rand() % 20)) , "");
 }   
 
 TEST(MYTESTS , at_not_exist_value_creating_new_cell_2) {
     HashTable table;
-    const Value a(gen_rand(rand() % 20), 21);
+    const Value a(gen_str(rand() % 20), 21);
     table.insert("asdfsa", a);
     ASSERT_DEATH(table.at("dnjkasn") , "");
 }   
 
 TEST(MYTESTS , at_exist_value_creating_new_cell_3) {
     HashTable table;
-    std::string name = gen_rand(rand() % 20);
-    std::string key = gen_rand(rand() % 20);
+    std::string name = gen_str(rand() % 20);
+    std::string key = gen_str(rand() % 20);
     const Value a(name, 21);
     table.insert(key, a);
     Value c = table.at(key);
     EXPECT_TRUE(compare(c , a));
 }   
 
-// TEST(MYTESTS , at_not_exist_value_creating_new_cell_1) { //
+// TEST(MYTESTS , at_not_exist_value_creating_new_cell_1) {//
 //     HashTable table;
-//     std::string key = gen_rand(rand() % 20);
+//     std::string key = gen_str(rand() % 20);
 //     EXPECT_EQ(table.at(key).name == table[key].name, 1);
 // }   
 
@@ -293,75 +314,135 @@ TEST(MYTESTS , assign_empty_table_to_empty_table) {
     HashTable table;
     HashTable table_1;
     table_1 = table;
-    EXPECT_EQ( table == table_1, 1);
+    EXPECT_TRUE( table == table_1);
 }   
 
 TEST(MYTESTS , assign_empty_table_to_not_empty_table ) {
     HashTable table;
     HashTable table_1;
-    const Value c(gen_rand(rand() % 20), 10);
-    table.insert(gen_rand(rand() % 20), c); 
+    const Value c(gen_str(rand() % 20), 10);
+    table.insert(gen_str(rand() % 20), c); 
     table_1 = table;
-    EXPECT_EQ( table == table_1, 1);
+    EXPECT_TRUE( table == table_1);
 }   
 
 TEST(MYTESTS , assign_not_empty_table_to_empty_table ) {
     HashTable table;
     HashTable table_1;
-    const Value c(gen_rand(rand() % 20), 10);
-    table.insert(gen_rand(rand() % 20), c); 
+    const Value c(gen_str(rand() % 20), 10);
+    table.insert(gen_str(rand() % 20), c); 
     table = table_1;
-    EXPECT_EQ( table == table_1, 1);
+    EXPECT_TRUE( table == table_1);
 }   
 
 TEST(MYTESTS , assign_not_empty_table_to_not_empty_table) {
     HashTable table;
-    const Value a(gen_rand(rand() % 20), 10);
-    const Value b(gen_rand(rand() % 20), 10);
-    table.insert(gen_rand(rand() % 20), a);
-    table.insert(gen_rand(rand() % 20), b); 
+    const Value a(gen_str(rand() % 20), 10);
+    const Value b(gen_str(rand() % 20), 10);
+    table.insert(gen_str(rand() % 20), a);
+    table.insert(gen_str(rand() % 20), b); 
     HashTable table_1;
-    const Value c(gen_rand(rand() % 20), 10);
-    table.insert(gen_rand(rand() % 20), c); 
+    const Value c(gen_str(rand() % 20), 10);
+    table.insert(gen_str(rand() % 20), c); 
     table_1 = table;
-    EXPECT_EQ( table == table_1, 1);
+    EXPECT_TRUE( table == table_1);
 }   
 
 
 //swap
+TEST(MYTESTS , swap_not_empty_tables_equal_capacity_and_size) {
+    HashTable table;
+    HashTable table_1;
+    const Value a(gen_str(rand() % 20), 21);
+    const Value b(gen_str(rand() % 20), 121);
+    table.insert(gen_str(rand() % 20), a);
+    table_1.insert(gen_str(rand() % 20), b);  
+    HashTable copy_table = table;
+    HashTable copy_table_1 = table_1;
+    table.swap(table_1);
+    EXPECT_TRUE( table == copy_table_1);
+    EXPECT_TRUE( table_1 == copy_table);
+}   
+
+TEST(MYTESTS , swap_not_empty_tables_with_itself_equal_capacity_and_size ) {
+    HashTable table;
+    const Value a(gen_str(rand() % 20), 21);
+    const Value b(gen_str(rand() % 20), 121);
+    table.insert(gen_str(rand() % 20), a);
+    table.insert(gen_str(rand() % 20), b);  
+    HashTable table_1 = table;
+    table.swap(table);
+    EXPECT_TRUE( table == table_1 );
+}   
+
 TEST(MYTESTS , swap_empty_tables ) {
     HashTable table;
     HashTable table_1;
-    const Value a(gen_rand(rand() % 20), 21);
-    const Value b(gen_rand(rand() % 20), 121);
-    table.insert(gen_rand(rand() % 20), a);
-    table_1.insert(gen_rand(rand() % 20), b);  
     HashTable copy_table = table;
     HashTable copy_table_1 = table_1;
     table.swap(table_1);
-    EXPECT_EQ( table == copy_table_1, 1);
-    EXPECT_EQ( table_1 == copy_table , 1);
+    EXPECT_TRUE( table == copy_table_1);
+    EXPECT_TRUE( table_1 == copy_table );
 }   
 
-TEST(MYTESTS , swap_empty_tables_with_itself ) {
-    HashTable table;
-    const Value a(gen_rand(rand() % 20), 21);
-    const Value b(gen_rand(rand() % 20), 121);
-    table.insert(gen_rand(rand() % 20), a);
-    table.insert(gen_rand(rand() % 20), b);  
-    HashTable table_1 = table;
-    table.swap(table);
-    EXPECT_EQ( table == table_1 , 1);
-}   
-
-TEST(MYTESTS , swap_not_empty_tables ) {
+TEST(MYTESTS , swap_tables_with_different_size_and_equal_capacity ) {
     HashTable table;
     HashTable table_1;
+    const Value a(gen_str(rand() % 20), 21);
+    const Value b(gen_str(rand() % 20), 121);
+    const Value d(gen_str(rand() % 20), 23);
+    table.insert(gen_str(rand() % 20), a);
+    table.insert(gen_str(rand() % 20), b);  
+    table_1.insert(gen_str(rand() % 20), d);
+
     HashTable copy_table = table;
     HashTable copy_table_1 = table_1;
     table.swap(table_1);
-    EXPECT_EQ( table == copy_table_1, 1);
-    EXPECT_EQ( table_1 == copy_table , 1);
+
+    EXPECT_TRUE( table == copy_table_1);
+
+    EXPECT_TRUE( table_1 == copy_table );
+}   
+
+TEST(MYTESTS , swap_tables_with_different_size_and_different_capacity ) {
+    HashTable table;
+    HashTable table_1;
+    const Value a(gen_str(rand() % 20), 21);
+    const Value b(gen_str(rand() % 20), 121);
+    const Value e(gen_str(rand() % 20), 11);
+
+    const Value d(gen_str(rand() % 20), 23);
+    table.insert(gen_str(rand() % 20), a);
+    table.insert(gen_str(rand() % 20), b);  
+    table.insert(gen_str(rand() % 20), e);  
+    table_1.insert(gen_str(rand() % 20), d);
+
+    HashTable copy_table = table;
+    HashTable copy_table_1 = table_1;
+    table.swap(table_1);
+
+    EXPECT_TRUE( table == copy_table_1);
+
+    EXPECT_TRUE( table_1 == copy_table);
+}   
+
+TEST(MYTESTS , swap_empty_and_not_empty_tables ) {
+    HashTable table;
+    HashTable table_1;
+    const Value a(gen_str(rand() % 20), 21);
+    const Value b(gen_str(rand() % 20), 121);
+    const Value e(gen_str(rand() % 20), 11);
+    
+    table.insert(gen_str(rand() % 20), a);
+    table.insert(gen_str(rand() % 20), b);  
+
+    HashTable copy_table = table;
+    HashTable copy_table_1 = table_1;
+    table.swap(table_1);
+
+    EXPECT_TRUE( table == copy_table_1);
+
+    EXPECT_TRUE( table_1 == copy_table);
 }   
 
 //clear
@@ -374,8 +455,8 @@ TEST(MYTESTS , clear_empty_table ) {
 TEST(MYTESTS , clear_not_empty_table ) {
     HashTable table;
     for(int i = 0 ; i < rand() % 100 ; i++){
-        const Value a(gen_rand(rand() % 20), 10);
-        table.insert(gen_rand(rand() % 20), a);
+        const Value a(gen_str(rand() % 20), 10);
+        table.insert(gen_str(rand() % 20), a);
     }
     table.clear();
     EXPECT_EQ(table.size() , 0);
@@ -385,29 +466,40 @@ TEST(MYTESTS , clear_not_empty_table ) {
 
 TEST(MYTESTS , accessing_an_empty_cell) {
     HashTable table;
-    std::string key = gen_rand(rand() % 20);
+    std::string key = gen_str(rand() % 20);
     Value v("" , 0);
     EXPECT_TRUE(compare(table[key] , v));
 }   
 
 TEST(MYTESTS , accessing_an_not_empty_cell) {
     HashTable table;
-    const Value a(gen_rand(rand() % 20), 10);
-    std::string key = gen_rand(rand() % 20);
+    const Value a(gen_str(rand() % 20), 10);
+    std::string key = gen_str(rand() % 20);
     table.insert(key, a);
     EXPECT_TRUE(compare(table[key] , a));
 }   
 
+TEST(MYTESTS , accessing_an_not_empty_cell_1) {
+    HashTable table;
+    const Value a(gen_str(rand() % 20), 10);
+    const Value b(gen_str(rand() % 20), 31);
+    std::string key = gen_str(rand() % 20);
+    table.insert(key, a);
+    table.insert(key, b);
+    table.erase(key);
+    EXPECT_TRUE(compare(table[key] , a) || compare(table[key] , b) );
+}   
+
 // TEST(MYTESTS , accessing_many_an_not_empty_cell_with_equal_keys) { UNCORRECT
 //     HashTable table;
-//     const Value a(gen_rand(rand() % 20), 31);
-//     const Value b(gen_rand(rand() % 20), 23);
-//     const Value c(gen_rand(rand() % 20), 31);
-//     const Value d(gen_rand(rand() % 20), 53);
-//     const Value e(gen_rand(rand() % 20), 85);
-//     const Value f(gen_rand(rand() % 20), 43);
-//     const Value g(gen_rand(rand() % 20), 53);
-//     std::string key = gen_rand(rand() % 20);
+//     const Value a(gen_str(rand() % 20), 31);
+//     const Value b(gen_str(rand() % 20), 23);
+//     const Value c(gen_str(rand() % 20), 31);
+//     const Value d(gen_str(rand() % 20), 53);
+//     const Value e(gen_str(rand() % 20), 85);
+//     const Value f(gen_str(rand() % 20), 43);
+//     const Value g(gen_str(rand() % 20), 53);
+//     std::string key = gen_str(rand() % 20);
 //     table.insert(key, a);   
 //     table.insert(key, b);   
 //     table.insert(key, c);   
@@ -432,15 +524,14 @@ TEST(MYTESTS , accessing_an_not_empty_cell) {
 //     table.erase(key);
 // }   
 
-// TEST(MYTESTS , operator_large_test) {
-//     HashTable table;
-//     for(int i = 0 ; i < 1000000; i++){
-//         const Value a(gen_rand(rand() % 20), 10);
-//         table.insert(gen_rand(rand() % 20), a);
-//     }
-//     HashTable table_1 = table;
-//     EXPECT_EQ(table_1 == table , 1);
-// }  
+TEST(MYTESTS , ten_hundred_inserts_test) {
+    HashTable table;
+    for(int i = 0 ; i < 10000; i++){
+        const Value a(gen_str(rand() % 20), 10);
+        table.insert(gen_str(rand() % 20), a);
+            EXPECT_EQ(table.size() , i + 1);
+    }
+}  
 
 
 

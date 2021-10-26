@@ -97,6 +97,8 @@ void HashTable::swap(HashTable& b) {
     const Cells** a = cells;
     this->cells = b.cells;
     b.cells = a;
+    std::swap(size_ , b.size_);
+    std::swap(capacity_ , b.capacity_);
 }
 
 void HashTable::clear() {

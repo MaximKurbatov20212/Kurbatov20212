@@ -63,7 +63,7 @@ TEST(MYTESTS , insert_many_values) {
     EXPECT_EQ(table.size() , range);
 }
 
-TEST(MYTESTS , couple_of_equial_value) {
+TEST(MYTESTS , couple_of_equal_value) {
     HashTable table;
     const Value a("Mark", 10);
     const Value b("Maxim", 15);
@@ -83,7 +83,7 @@ TEST(MYTESTS , couple_of_equial_value) {
 //empty
 TEST(MYTESTS , is_empty_1) {
     HashTable table;
-    EXPECT_EQ(table.empty() , 1);
+    EXPECT_TRUE(table.empty());
 }
 
 TEST(MYTESTS , is_empty_2_insert_and_erase) {
@@ -103,7 +103,7 @@ TEST(MYTESTS , is_not_empty_1) {
     EXPECT_EQ(table.empty() , 0);
 }
 
-TEST(MYTESTS , is_not_empty_2) {
+TEST(MYTESTS , is_not_empty_if_many_inserted) {
     HashTable table;
     std::string key = gen_str(rand() % 20);
     for( int i = 0 ; i < 1000 ; i++){
@@ -127,11 +127,11 @@ TEST(MYTESTS , there_is_not_such_key) {
     HashTable table;
     const Value t("Mark", 10);
     table.insert("hello", t);
-    EXPECT_EQ(table.contains("qwe") , 0);
+    EXPECT_EQ(table.contains("qwe1") , 0);
 }
 
 // operator ==
-TEST(MYTESTS , empty_tables_is_equal) {
+TEST(MYTESTS , empty_tables_are_equal) {
     HashTable table;
     HashTable table_1;
     EXPECT_EQ(table == table_1 , 1);
@@ -150,7 +150,7 @@ TEST(MYTESTS , are_equal) {
     EXPECT_EQ(table == table_1 , 1);
 }
 
-TEST(MYTESTS , are_not_equal) {
+TEST(MYTESTS , are_not_equal_if_different_size) {
     HashTable table;
     HashTable table_1;    
     const Value a("Mark", 10);
@@ -158,7 +158,7 @@ TEST(MYTESTS , are_not_equal) {
     EXPECT_EQ(table == table_1 , 0);
 }
 
-TEST(MYTESTS , are_not_equal_1) {
+TEST(MYTESTS , are_not_equal_same_value_different_keys) {
     HashTable table;
     HashTable table_1;    
     const Value a("Mark", 10);
@@ -168,8 +168,8 @@ TEST(MYTESTS , are_not_equal_1) {
 }
 
 TEST(MYTESTS , are_not_equal_2_different_key_but_equal_hash) {
-    HashTable table;
-    HashTable table_1;    
+    HashTable table(1);
+    HashTable table_1(1);
     const Value a("Mark", 10);
     table.insert("j", a);
     table_1.insert("h", a);
@@ -189,7 +189,7 @@ TEST(MYTESTS , are_not_equal_3) {
 //erase
 TEST(MYTESTS , erase_to_empty_table) {
     HashTable table;
-    table.erase(gen_str(rand() % 20));
+    EXPECT_FALSE(table.erase(gen_str(rand() % 20)));
     EXPECT_EQ(table.size() , 0);
 }
 TEST(MYTESTS , erase_exists_cell) {

@@ -72,14 +72,6 @@ TEST(MYTESTS , couple_of_equal_value) {
     EXPECT_EQ(table.size() , 2);
 }
 
-// TEST(MYTESTS , memory) {
-//     HashTable table;
-//     for(long long i = 0 ; i < LLONG_MAX ; i++){
-//         const Value a( gen_str(rand() % 20) , rand() % 100);
-//         ASSERT_DEATH(table.insert( gen_str(rand() % 20) , a), "Assertion failed.*");
-//     }
-// }
-
 //empty
 TEST(MYTESTS , is_empty_1) {
     HashTable table;

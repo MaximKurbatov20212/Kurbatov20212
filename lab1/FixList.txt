@@ -1,0 +1,19 @@
+Fixed:
+1) CmakeLists:
+    Removed local and included remote repository with gtest
+    Added separate building for main and gtests
+
+2) hpp:
+    Deleted //+
+    Did documentation above methods
+    Changed documentation for: swap, 
+    Changed public and private fields
+    Did struct Cells private
+    Change clear(). Now method don't init cells again.
+
+
+3) hash_table.cpp
+    Added new Ctor, which create Table with adjusting capacity
+    Remove method "init_cells"
+    Changed condition of rebuilding
+    

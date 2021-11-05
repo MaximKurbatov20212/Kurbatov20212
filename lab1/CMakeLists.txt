@@ -1,10 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # set the project name
-project(lab1 VERSION 0.1)
-
-# add the executable
-add_executable(lab1 hash_table.cpp main1.cpp)
+project(lab VERSION 0.1)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -23,14 +20,14 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 
 add_executable(
-  lab1
+  lab
   hash_table_test.cpp
   hash_table.cpp
 )
 target_link_libraries(
-  IntArrayTest
+  lab
   gtest_main
 )
 
 include(GoogleTest)
-gtest_discover_tests(lab1)
+gtest_discover_tests(lab)

@@ -85,14 +85,6 @@ void HashTable::clear() {
     capacity_ = 0;
 }
 
-void HashTable::rebuld_table(const Cells** array) {
-    size_ = 0;
-    for (int i = 0; i < capacity_ / 2; i++) {
-        if (array[i] !=  nullptr)
-            insert(array[i]->key, (array[i]->value));
-    }
-}
-
 void HashTable::copy_cells(const Cells** from, const Cells** to, int capacity) {
     for (int i = 0; i < capacity; i++) {
         if (from[i] !=  nullptr) {
@@ -101,38 +93,23 @@ void HashTable::copy_cells(const Cells** from, const Cells** to, int capacity) {
     }
 }
 
-// bool HashTable::resize() {
-//     const Cells** array = new Cells * [capacity_ * 2];
-//     if (array ==  nullptr)
-//         return false;
+bool HashTable::resize() {
+    const Cells** array = new const Cells * [capacity_ * 2]; // new Cells
+    size_ = 0; 
+    
+    for (int i = 0; i < capacity_ / 2; i++) {
+        if (cells[i] !=  nullptr){
+            insert(cells[i]->key, (cells[i]->value));
+            size_ ++;
+        }  
+    }
 
-//     init_cells(array);
-
-//      size_ = 0;
-//     for (int i = 0; i < capacity_ / 2; i++) {
-//         if (array[i] !=  nullptr)
-//             insert(array[i]->key, (array[i]->value), capacity_ * 2);
-//     }
-
-//     copy_cells(array, cells, capacity_);
-
-//     free_cells();
-//     cells = array;
-//     capacity_ *= 2;
-//     init_cells(cells);
-//     return true;
-
-//     // rebuld_table(array); // there are nothing bags
-
-//     // for (int i = 0; i < capacity_ / 2; i++) {
-//     //     if (array[i] !=  nullptr) {
-//     //         delete array[i];
-//     //     }
-//     // }
-//     // delete[] array;
-
-//     // return true;
-// }
+    free_cells();
+    delete[] cells;
+    cells = array;
+    capacity_ *= 2;
+    return true;
+}
 
 bool HashTable::is_occupied(int pos) {
     return (cells[pos] != nullptr);
@@ -142,23 +119,26 @@ bool HashTable::insert(const Key& k, const Value& v) {
     if (size_ * 4 > capacity_ * 3) { // 75%
         resize();
     }
+    int first_deleted = -1;
     int hash = calc_hash(k);
     int temp = hash;
     do{
         if(is_occupied(hash) && (k == cells[hash]->key)){ // couple equal key
             delete cells[hash];
-            const Cells* cell = new const Cells(k , v);
+            const Cells* cell = new const Cells(k , v);   
             cells[hash] = cell;
+            return false;
         }
-        //if(s_occupied(hash))
-
-
+        if(!is_occupied(hash)) { 
+            first_deleted = hash;
+        }
+        hash = (hash + 1) % capacity_;
+        
     }while(hash != temp);
 
-    const Cells* cell = find(k);
-    if(cell == nullptr){
-
-    }
+    const_cast<Value&>(cells[first_deleted]->value).name = v.name;
+    const_cast<Cells*>(cells[first_deleted])->key = k;
+    return true;
 }
 
 
@@ -247,13 +227,6 @@ bool HashTable::empty() const {
 }
 
 int main() {
-    HashTable table(10);
-    HashTable table1 = table;
-    std::cout << table.capacity();
-    std::cout << table1.capacity();
+    HashTable table;
     std::cout << table.size();
-    std::cout << table1.size();
-    table.print_table();
-    table.print_table();
-
 }

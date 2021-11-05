@@ -16,4 +16,4 @@ Fixed:
     Added new Ctor, which create Table with adjusting capacity
     Remove method "init_cells"
     Changed condition of rebuilding
-    
+

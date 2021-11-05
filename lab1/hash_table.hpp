@@ -8,6 +8,11 @@ typedef struct Value {
     Value(std::string n, unsigned a = 0) : name(n), age(a) {}
     std::string name;
     unsigned age;
+
+    void operator=(const Value& v){
+        age = v.age;
+        name = v.name;
+    }
 }Value;
 
  
@@ -26,7 +31,7 @@ private:
     const Cells** cells;
 
     const static size_t PRIME_1 = 7;
-    const static size_t MIN_SIZE  = 2;
+    const static size_t MIN_SIZE  = 11;
 
     void free_cells();
 
@@ -74,7 +79,6 @@ public:
     // Create and insert v to table in corresponding cell, depending to k
     // If cell is occupied then increase index to one and try again 
     // If table is full then increase capacity of table and insert v
-    // Assert if can no allocates memory, else returns true
     bool insert(const Key& k, const Value& v); 
 
 
@@ -89,11 +93,11 @@ public:
 
 
     // Returns link to exist value in the table, if there is cell with key k
-    // Assert if there is no cell with such key
+    // Exeption if there is no cell with such key
     Value& at(const Key& k); 
 
     // Returns constant link to exist value in the table, if there is cell with key k
-    // Assert if there is no cell with such key
+    // Exeption if there is no cell with such key
     const Value& at(const Key& k) const; 
 
 

@@ -8,11 +8,13 @@ int main() {
     const Value t2("Alex", 23);
     const Value t4("Maxim", 90);
     const Value t5("Sanya", 21);
+        const Value t8("John", 10);
     table.insert("hello", t3);
     table.insert("hello", t2);
     table.insert("hello", t);
     table.insert("dsa", t4);
     table.insert("fsas", t5);
+
     table.print_table();
     std::cout << 65 % table.capacity() << std::endl;
     std::cout << table.contains("A") << std::endl;

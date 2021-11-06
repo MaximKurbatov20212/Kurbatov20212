@@ -1,13 +1,9 @@
 #include <iostream>
 #include "hash_table.hpp"
-#include <cmath>
 #include <exception>
-#include <cassert>
 
 void HashTable::print_table() {
-    //std::cout << "Table" << std::endl;
     for (int i = 0; i < capacity_; i++) {
-        //std::cout << cells[i] << std::endl;
         if (cells[i] != nullptr) {
 
             std::cout << "key: " << cells[i]->key << "name: " << cells[i]->value.name << " age: " << cells[i]->value.age << std::endl;
@@ -46,7 +42,7 @@ HashTable::HashTable() : capacity_(MIN_SIZE), cells(new const Cells* [MIN_SIZE])
 }
 
 HashTable::HashTable(const HashTable& b) : capacity_(b.capacity_), size_(b.size_), cells(new const Cells* [b.capacity_]) {
-    copy_cells(b.cells, cells, b.capacity_); // from to capacity
+    copy_cells(b.cells, cells, b.capacity_); 
 }
 
 HashTable::~HashTable() {

@@ -2,7 +2,7 @@
 #define HASH_TABLE
 typedef std::string Key;
 
-typedef struct Value {
+struct Value {
     Value() = default;
     Value(std::string n, unsigned a = 0) : name(n), age(a) {}
     std::string name;
@@ -12,7 +12,7 @@ typedef struct Value {
         age = v.age;
         name = v.name;
     }
-}Value;
+};
 
 
 class HashTable {
@@ -123,7 +123,5 @@ private:
     int find(const Key& k) const;
 
     bool insert(const Key& k, const Value& v, int capacity, const Cells** array);
-
-
 };
 #endif

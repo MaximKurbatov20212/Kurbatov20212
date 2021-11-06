@@ -3,7 +3,7 @@ Fixed:
     Removed local and included remote repository with gtest
     Added separate building for main and gtests
 
-2) hpp:
+2) hash_table.hpp:
     Deleted //+
     Did documentation above methods
     Changed documentation for: swap, 
@@ -16,4 +16,11 @@ Fixed:
     Added new Ctor, which create Table with adjusting capacity
     Remove method "init_cells"
     Changed condition of rebuilding
+    Added method "find"(index)
+    Fixed method "at"
+    Added third and fourth parametrs in method "insert" and overrided it
+
+4) hash_table_test.cpp:
+    Fixed incorrect tests which appeared after changing "insert" 
+    
 

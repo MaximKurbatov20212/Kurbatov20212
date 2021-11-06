@@ -23,4 +23,3 @@ Fixed:
 4) hash_table_test.cpp:
     Fixed incorrect tests which appeared after changing "insert" 
     
-

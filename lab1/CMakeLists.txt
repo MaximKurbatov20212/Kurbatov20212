@@ -1,14 +1,13 @@
 cmake_minimum_required(VERSION 3.10)
 
 # set the project name
-project(HashTable VERSION 0.1)
-
-
+project(test_table VERSION 0.1)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # tests
+# add_executable(test_table hash_table.cpp main.cpp)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -22,15 +21,15 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 
 add_executable(
-  HashTable
+  test_table
   hash_table_test.cpp
   hash_table.cpp
 )
 
 target_link_libraries(
-  HashTable
+  test_table
   gtest_main
 )
 
 include(GoogleTest)
-gtest_discover_tests(HashTable)
+gtest_discover_tests(test_table)

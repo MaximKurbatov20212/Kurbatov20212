@@ -6,6 +6,14 @@ project(test_table VERSION 0.1)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+if ( CMAKE_COMPILER_IS_GNUCC )
+  target_compile_options(lexer PRIVATE "-Wall -Wextra")
+endif()
+if ( MSVC )
+     target_compile_options(lexer PRIVATE "/W4")
+endif()
+
+
 # tests
 # add_executable(test_table hash_table.cpp main.cpp)
 

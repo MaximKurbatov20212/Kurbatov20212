@@ -19,6 +19,7 @@ class HashTable {
 public:
 
     HashTable();
+    
     HashTable(int capacity);
 
     ~HashTable();
@@ -79,14 +80,14 @@ public:
     // Return false, if there is one or more initialazed cells
     bool empty() const;
 
-    //Compare all cells of tables.
-    //Returns true, if all of corresponding cells are equal
-    //Returns false, if exist different cells with equal index
+    // Compare all cells of tables.
+    // Returns true, if cells with equal index are equal
+    // Returns false, if exist different cells with equal index
     friend bool operator==(const HashTable& a, const HashTable& b);
 
 
-    // Compare all cells of tables.
-    // Returns false, if all of corresponding cells are equal
+    // Compares all cells in the tables.
+    // Returns false, if cells with equal index are equal
     // Returns true, if exist different cells with equal index
     friend bool operator!=(const HashTable& a, const HashTable& b);
 

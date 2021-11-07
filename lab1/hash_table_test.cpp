@@ -53,7 +53,7 @@ TEST(test_table , insert_two_equal_value_with_equal_keys) {
 }
 
 
-TEST(test_table , insert_two_not_equal_value_with_equal_keys) { // 3
+TEST(test_table , insert_two_not_equal_value_with_equal_keys) { 
     HashTable table;
     const Value a("Mark", 10);
     const Value b("Maxim", 15);
@@ -109,7 +109,7 @@ TEST(test_table , there_is_not_such_key) {
     HashTable table;
     const Value t("Mark", 10);
     table.insert("hello", t);
-    EXPECT_FALSE(table.contains("qwe1") );
+    EXPECT_FALSE(table.contains("sodajioadsba") );
 }
 
 // operator ==
@@ -271,7 +271,7 @@ TEST(test_table , at_not_exist_value_2) {
     HashTable table;
     const Value a(gen_str(rand() % 20), 21);
     table.insert("asdfsa", a);
-    ASSERT_THROW(table.at("dnjkasn"), std::runtime_error);
+    ASSERT_THROW(table.at("hjkasdjhsa"), std::runtime_error);
 }   
 
 TEST(test_table , at_exist_value_3) { 

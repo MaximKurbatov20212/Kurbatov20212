@@ -32,7 +32,6 @@ void HashTable::free_cells() {
     cells = nullptr;
 }
 
-
 HashTable::HashTable(int capacity) : capacity_(capacity), cells(new const Cells* [capacity_]), size_(0) {
     init_cells();
 }
@@ -57,7 +56,7 @@ size_t HashTable::capacity() const {
     return capacity_;
 }
 
-unsigned int HashTable::calc_hash(const std::string expression) const {
+unsigned int HashTable::calc_hash(const std::string& expression) const {
     int len = expression.length();
     int p = 1;
     unsigned int hash = 0;
@@ -67,8 +66,6 @@ unsigned int HashTable::calc_hash(const std::string expression) const {
     }
     return hash;
 }
-
-
 
 HashTable& HashTable::operator=(const HashTable& b) {
     if (this != &b) {

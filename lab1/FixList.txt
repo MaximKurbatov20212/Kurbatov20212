@@ -10,7 +10,7 @@ Fixed:
     Changed public and private fields
     Now struct "Cells" is private
     Change clear(). Now method don't init cells again.
-
+    Cells -> Cell
 
 3) hash_table.cpp:
     Added new Ctor, which create Table with adjusting capacity

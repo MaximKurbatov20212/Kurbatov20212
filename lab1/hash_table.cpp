@@ -32,15 +32,17 @@ void HashTable::free_cells() {
     cells = nullptr;
 }
 
-HashTable::HashTable(int capacity) : capacity_(capacity), cells(new const Cells* [capacity_]), size_(0) {
+HashTable::HashTable(int capacity) : capacity_(capacity), cells(new const Cell* [capacity_]) {
+    size_ = 0;
     init_cells();
 }
 
-HashTable::HashTable() : capacity_(MIN_SIZE), cells(new const Cells* [MIN_SIZE]), size_(0) {
+HashTable::HashTable() : capacity_(MIN_SIZE), cells(new const Cell* [MIN_SIZE]) {
+    size_ = 0;
     init_cells();
 }
 
-HashTable::HashTable(const HashTable& b) : capacity_(b.capacity_), size_(b.size_), cells(new const Cells* [b.capacity_]) {
+HashTable::HashTable(const HashTable& b) : capacity_(b.capacity_), size_(b.size_), cells(new const Cell* [b.capacity_]) {
     copy_cells(b.cells, cells, b.capacity_); 
 }
 
@@ -72,7 +74,7 @@ HashTable& HashTable::operator=(const HashTable& b) {
         free_cells();
         size_ = b.size_;
         capacity_ = b.capacity_;
-        cells = new const Cells * [b.capacity_];
+        cells = new const Cell * [b.capacity_];
         init_cells();
         copy_cells(cells, b.cells, b.capacity_);
     }
@@ -86,22 +88,24 @@ void HashTable::swap(HashTable& b) {
 }
 
 void HashTable::clear() {
-    free_cells();
+    for(int i = 0 ; i < capacity_ ; i++ ) {
+        delete cells[i];
+        cells[i] = nullptr;
+    }
     size_ = 0;
-    capacity_ = 0;
 }
 
-void HashTable::copy_cells(const Cells** from, const Cells** to, int capacity) {
+void HashTable::copy_cells(const Cell** from, const Cell** to, int capacity) {
     for (int i = 0; i < capacity; i++) {
         to[i] = nullptr;
         if (from[i] != nullptr) {
-            to[i] = new Cells(from[i]->key, from[i]->value);
+            to[i] = new Cell(from[i]->key, from[i]->value);
         }
     }
 }
 
 bool HashTable::resize() {
-    const Cells** array = new const Cells * [capacity_ * 2]; // new Cells
+    const Cell** array = new const Cell * [capacity_ * 2]; 
     for (int i = 0; i < capacity_ * 2; i++) {
         array[i] = nullptr;
     }
@@ -125,7 +129,7 @@ bool HashTable::is_occupied(int pos) {
     return (cells[pos] != nullptr);
 }
 
-bool HashTable::insert(const Key& k, const Value& v, int capacity, const Cells** array) {
+bool HashTable::insert(const Key& k, const Value& v, int capacity, const Cell** array) {
     if (size_ * 4 > capacity * 3) { // 75%
         resize();
     }
@@ -134,12 +138,12 @@ bool HashTable::insert(const Key& k, const Value& v, int capacity, const Cells**
     do {
         if (is_occupied(hash) && (k == array[hash]->key)) { // couple equal key
             delete array[hash];
-            const Cells* cell = new const Cells(k, v);
+            const Cell* cell = new const Cell(k, v);
             array[hash] = cell;
             return false;
         }
         if (!is_occupied(hash)) {
-            const Cells* cell = new const Cells(k, v);
+            const Cell* cell = new const Cell(k, v);
             array[hash] = cell;
             size_++;
             break;
@@ -149,7 +153,7 @@ bool HashTable::insert(const Key& k, const Value& v, int capacity, const Cells**
     } while (hash != temp);
 
     const_cast<Value&>(array[hash]->value) = v;
-    const_cast<Cells*>(array[hash])->key = k;
+    const_cast<Cell*>(array[hash])->key = k;
     return true;
 }
 
@@ -170,14 +174,14 @@ int HashTable::find(const Key& k) const {
 }
 
 Value& HashTable::operator[](const Key& k) {
-    const Cells* cell = cells[find(k)];
+    const Cell* cell = cells[find(k)];
     if (cell != nullptr) {
         return const_cast<Value&>(cell->value);
     }
     int hash = calc_hash(k);
     size_++;
     static Value v("", 0);
-    cells[hash] = new Cells(k, v);
+    cells[hash] = new Cell(k, v);
     return (Value&)(cells[hash]->value);
 }
 

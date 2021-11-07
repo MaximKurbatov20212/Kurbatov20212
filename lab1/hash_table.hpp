@@ -7,11 +7,6 @@ struct Value {
     Value(std::string n, unsigned a = 0) : name(n), age(a) {}
     std::string name;
     unsigned age;
-
-    void operator=(const Value& v) {
-        age = v.age;
-        name = v.name;
-    }
 };
 
 
@@ -95,34 +90,34 @@ private:
     int capacity_;
     int size_;
 
-    struct Cells {
+    struct Cell {
         Key key;
         const Value value;
-        Cells() = default;
-        Cells(Key k, const Value v) : key(k), value(v) {}
+        Cell() = default;
+        Cell(Key k, const Value v) : key(k), value(v) {}
     };
 
-    const Cells** cells;
+    const Cell** cells;
 
     const static size_t PRIME_1 = 7;
     const static size_t MIN_SIZE = 11;
 
     void free_cells();
 
-    void copy_cells(const Cells** to, const Cells** from, int capacity);
+    void copy_cells(const Cell** to, const Cell** from, int capacity);
 
-    void rebuld_table(const Cells** array);
+    void rebuld_table(const Cell** array);
 
     bool is_occupied(int pos);
 
     bool resize();
 
-    unsigned int calc_hash(std::string expression) const;
+    unsigned int calc_hash(const std::string& expression) const;
 
     void init_cells();
 
     int find(const Key& k) const;
 
-    bool insert(const Key& k, const Value& v, int capacity, const Cells** array);
+    bool insert(const Key& k, const Value& v, int capacity, const Cell** array);
 };
 #endif

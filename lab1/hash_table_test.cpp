@@ -426,7 +426,7 @@ TEST(test_table , clear_empty_table ) {
     EXPECT_EQ(table.size() , 0);
 } 
 
-TEST(test_table , clear_not_empty_table ) {
+TEST(test_table , clear_not_empty_table_1 ) {
     HashTable table;
     for(int i = 0 ; i < rand() % 100 ; i++){
         const Value a(gen_str(rand() % 20), 10);
@@ -435,6 +435,20 @@ TEST(test_table , clear_not_empty_table ) {
     table.clear();
     EXPECT_EQ(table.size() , 0);
 }   
+
+TEST(test_table , clear_not_empty_table_2_and_insert) {
+    HashTable table;
+    const Value a(gen_str(rand() % 20), 21);
+    const Value b(gen_str(rand() % 20), 121);
+    const Value d(gen_str(rand() % 20), 23);
+    table.insert(gen_str(rand() % 20), a);
+    table.insert(gen_str(rand() % 20), b);  
+    table.insert(gen_str(rand() % 20), d);
+    table.clear();
+    table.insert(gen_str(rand() % 20), d);
+    EXPECT_EQ(table.size() , 1);
+}   
+
 
 //operator[]
 
@@ -453,8 +467,8 @@ TEST(test_table , accessing_an_not_empty_cell) {
     EXPECT_TRUE(compare(table[key] , a));
 }   
 
-int main(int argc, char* argv[])
-{
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
+// int main(int argc, char* argv[])
+// {
+//     ::testing::InitGoogleTest(&argc, argv);
+//     return RUN_ALL_TESTS();
+// }

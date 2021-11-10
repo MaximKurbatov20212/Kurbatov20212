@@ -12,6 +12,7 @@ void HashTable::print_table() {
             std::cout << "cells[" << i << "] = nullptr" <<  std::endl;
         }
     }
+    
     std::cout << std::endl;
 }
 

@@ -12,7 +12,7 @@ void HashTable::print_table() {
             std::cout << "cells[" << i << "] = nullptr" <<  std::endl;
         }
     }
-    
+
     std::cout << std::endl;
 }
 
@@ -171,28 +171,36 @@ int HashTable::find(const Key& k) const {
         }
         hash = (hash + 1) % capacity_;
     } while (temp != hash);
-    return  0;
+    return  -1;
 }
 
 Value& HashTable::operator[](const Key& k) {
-    const Cell* cell = cells[find(k)];
-    if (cell != nullptr) {
-        return const_cast<Value&>(cell->value);
+    int index = find(k);
+    if(index == -1){
+        int hash = calc_hash(k);
+        size_++;
+        static Value v("", 0);
+        cells[hash] = new Cell(k, v);
+        return (Value&)(cells[hash]->value);
     }
-    int hash = calc_hash(k);
-    size_++;
-    static Value v("", 0);
-    cells[hash] = new Cell(k, v);
-    return (Value&)(cells[hash]->value);
+    const Cell* cell = cells[index];
+    return const_cast<Value&>(cell->value);
+
 }
 
 bool HashTable::contains(const Key& k) const {
-    return (cells[find(k)] != nullptr);
+    int index = find(k);
+    if(index == -1){
+        return false;
+    }
+    return true;
 }
 
 bool HashTable::erase(const Key& k) {
     int index = find(k);
-    if (cells[index] == nullptr) return false;
+    if(index == -1){
+        return false;
+    }
     delete cells[index];
     cells[index] = nullptr;
     size_--;
@@ -201,18 +209,18 @@ bool HashTable::erase(const Key& k) {
 
 const Value& HashTable::at(const Key& k) const {
     int index = find(k);
-    if (cells[index] != nullptr) {
-        return cells[index]->value;
+    if(index == -1){
+        throw std::runtime_error("no key found");
     }
-    throw std::runtime_error("no key found");
+    return (cells[index]->value);
 }
 
 Value& HashTable::at(const Key& k) {
     int index = find(k);
-    if (cells[index] != nullptr) {
-        return const_cast<Value&>(cells[index]->value);
+    if(index == -1){
+        throw std::runtime_error("no key found");
     }
-    throw std::runtime_error("no key found");
+    return const_cast<Value&>(cells[index]->value);
 
     //return const_cast<Value&>(at(k)); calls itself    
 }

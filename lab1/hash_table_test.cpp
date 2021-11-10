@@ -28,6 +28,15 @@ std::string gen_str(const int len) {
     return tmp_s;
 }
 
+
+TEST(test_table , at_cell_and_compare){ //NEW TEST
+    HashTable table;
+    const Value a("", 0);
+    table.insert("foo" , a);
+    const Value b = table.at("foo");
+    EXPECT_TRUE(b.name == a.name);
+}
+
 //insert
 TEST(test_table , initial_size_is_zero) {
     HashTable table;
@@ -251,7 +260,7 @@ TEST(test_table , assign_and_compare_empty_tables_7) {
     EXPECT_FALSE(table_1 != table );
 }   
 
-TEST(test_table , assign_and_compare_not_empty_tables_2) {
+TEST(test_table , assign_and_compare_no_find){
     HashTable table;
     const Value a("Mark", 10);
     const Value b("Mark", 10);
@@ -466,9 +475,3 @@ TEST(test_table , accessing_an_not_empty_cell) {
     table.insert(key, a);
     EXPECT_TRUE(compare(table[key] , a));
 }   
-
-// int main(int argc, char* argv[])
-// {
-//     ::testing::InitGoogleTest(&argc, argv);
-//     return RUN_ALL_TESTS();
-// }

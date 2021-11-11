@@ -120,7 +120,6 @@ bool HashTable::resize() {
     }
 
     free_cells();
-    delete[] cells;
     cells = array;
     capacity_ *= 2;
     return true;
@@ -152,9 +151,6 @@ bool HashTable::insert(const Key& k, const Value& v, int capacity, const Cell** 
         hash = (hash + 1) % capacity;
 
     } while (hash != temp);
-
-    const_cast<Value&>(array[hash]->value) = v;
-    const_cast<Cell*>(array[hash])->key = k;
     return true;
 }
 

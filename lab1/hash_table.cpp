@@ -35,7 +35,7 @@ void HashTable::free_cells() {
 
 HashTable::HashTable(int capacity) : capacity_(capacity), cells(new const Cell* [capacity_]) {
     size_ = 0;
-    init_cells();
+    //init_cells();
 }
 
 HashTable::HashTable() : capacity_(MIN_SIZE), cells(new const Cell* [MIN_SIZE]) {

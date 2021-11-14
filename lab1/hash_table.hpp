@@ -40,9 +40,7 @@ public:
 
 
     // Create and insert v to table.
-    // If cell is occupied then increase index to one and try again
     // If there is cell this such key then don't insert and return false.
-    // If table is more then 75% full then increase capacity of table and insert v
     bool insert(const Key& k, const Value& v);
 
 
@@ -100,15 +98,11 @@ private:
     const Cell** cells;
 
     const static size_t PRIME_1 = 7;
-    const static size_t MIN_SIZE = 11;
+    const static size_t MIN_CAPACITY = 4;
 
     void free_cells();
 
     void copy_cells(const Cell** to, const Cell** from, int capacity);
-
-    void rebuld_table(const Cell** array);
-
-    bool is_occupied(int pos);
 
     bool resize();
 

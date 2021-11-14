@@ -28,6 +28,50 @@ std::string gen_str(const int len) {
     return tmp_s;
 }
 
+//rebuild
+TEST(test_table , resize){
+    HashTable table;
+    const Value a("Mark", 10);
+    const Value b("Maxim", 15);
+    const Value c("Alex", 13);
+    const Value d("Ivan", 321);
+
+    EXPECT_EQ(table.size() , 0);
+    EXPECT_EQ(table.capacity() , 4);
+
+    table.insert("qwerty" , a); //capacity = 4, size = 1 
+    EXPECT_EQ(table.size() , 1);
+    EXPECT_EQ(table.capacity() , 4);
+
+    table.insert("q" , b); //capacity = 4, size = 2
+    EXPECT_EQ(table.size() , 2);
+    EXPECT_EQ(table.capacity() , 4);
+
+    table.insert("qw" , c); //capacity = 4, size = 3
+    EXPECT_EQ(table.size() , 3);
+    EXPECT_EQ(table.capacity() , 4);
+
+    table.insert("qwer" , d); //capacity = 8, size = 4
+    EXPECT_EQ(table.size() , 4);
+    EXPECT_EQ(table.capacity() , 8);
+
+    table.insert("safs" , d); //capacity = 8, size = 5
+    EXPECT_EQ(table.size() , 5);
+    EXPECT_EQ(table.capacity() , 8);
+
+    table.insert("sasaklfnkfs" , d); //capacity = 8, size = 6
+    EXPECT_EQ(table.size() , 6);
+    EXPECT_EQ(table.capacity() , 8);
+
+    table.insert("ssanjkdnaf" , d); //capacity = 16, size = 7
+    EXPECT_EQ(table.size() , 7);
+    EXPECT_EQ(table.capacity() , 16);
+
+    table.clear();
+    EXPECT_EQ(table.size() , 0);
+    EXPECT_EQ(table.capacity() , 16);
+}
+
 
 TEST(test_table , at_cell_and_compare){ //NEW TEST
     HashTable table;

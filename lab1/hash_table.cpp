@@ -1,15 +1,15 @@
 #include <iostream>
 #include "hash_table.hpp"
 #include <exception>
+#include <assert.h>
 
 void HashTable::print_table() {
     for (int i = 0; i < capacity_; i++) {
         if (cells[i] != nullptr) {
-
             std::cout << "key: " << cells[i]->key << "name: " << cells[i]->value.name << " age: " << cells[i]->value.age << std::endl;
         }
         else {
-            std::cout << "cells[" << i << "] = nullptr" <<  std::endl;
+            std::cout << "cells[" << i << "] = nullptr" << std::endl;
         }
     }
 
@@ -33,18 +33,16 @@ void HashTable::free_cells() {
     cells = nullptr;
 }
 
-HashTable::HashTable(int capacity) : capacity_(capacity), cells(new const Cell* [capacity_]) {
-    size_ = 0;
-    //init_cells();
+HashTable::HashTable(int capacity) : capacity_(capacity), size_(0), cells(new const Cell* [capacity_]) {
+    init_cells();
 }
 
-HashTable::HashTable() : capacity_(MIN_SIZE), cells(new const Cell* [MIN_SIZE]) {
-    size_ = 0;
+HashTable::HashTable() : capacity_(MIN_CAPACITY), size_(0), cells(new const Cell* [MIN_CAPACITY]) {
     init_cells();
 }
 
 HashTable::HashTable(const HashTable& b) : capacity_(b.capacity_), size_(b.size_), cells(new const Cell* [b.capacity_]) {
-    copy_cells(b.cells, cells, b.capacity_); 
+    copy_cells(b.cells, cells, b.capacity_);
 }
 
 HashTable::~HashTable() {
@@ -89,9 +87,11 @@ void HashTable::swap(HashTable& b) {
 }
 
 void HashTable::clear() {
-    for(int i = 0 ; i < capacity_ ; i++ ) {
-        delete cells[i];
-        cells[i] = nullptr;
+    for (int i = 0; i < capacity_; i++) {
+        if (cells[i] != nullptr) {
+            delete cells[i];
+            cells[i] = nullptr;
+        }
     }
     size_ = 0;
 }
@@ -105,53 +105,48 @@ void HashTable::copy_cells(const Cell** from, const Cell** to, int capacity) {
     }
 }
 
-bool HashTable::resize() {
+ bool HashTable::resize() {
     const Cell** array = new const Cell * [capacity_ * 2]; 
     for (int i = 0; i < capacity_ * 2; i++) {
         array[i] = nullptr;
     }
 
     size_ = 0;
-    for (int i = 0; i < capacity_ / 2; i++) {
+    for (int i = 0; i < capacity_ ; i++) {
         if (cells[i] != nullptr) {
-            insert(cells[i]->key, cells[i]->value, capacity_ * 2, array);
-            size_++;
+            insert(cells[i]->key, cells[i]->value, capacity_ * 2, array); // size_++; will make "insert" 
         }
     }
-
     free_cells();
     cells = array;
     capacity_ *= 2;
     return true;
 }
 
-bool HashTable::is_occupied(int pos) {
-    return (cells[pos] != nullptr);
-}
-
 bool HashTable::insert(const Key& k, const Value& v, int capacity, const Cell** array) {
-    if (size_ * 4 > capacity * 3) { // 75%
+    if (size_ * 4 >= capacity * 3) { // 75%
         resize();
+        array = cells; // after resizing "cells" and we should accept changes
     }
     int hash = calc_hash(k);
     int temp = hash;
     do {
-        if (is_occupied(hash) && (k == array[hash]->key)) { // couple equal key
+        if (array[hash] == nullptr) {
+            const Cell* cell = new const Cell(k, v);
+            array[hash] = cell;
+            size_++;
+            return true ;
+        }
+        else if (k == array[hash]->key) {
             delete array[hash];
             const Cell* cell = new const Cell(k, v);
             array[hash] = cell;
             return false;
         }
-        if (!is_occupied(hash)) {
-            const Cell* cell = new const Cell(k, v);
-            array[hash] = cell;
-            size_++;
-            break;
-        }
         hash = (hash + 1) % capacity;
 
     } while (hash != temp);
-    return true;
+    assert(false);
 }
 
 bool HashTable::insert(const Key& k, const Value& v) {
@@ -172,7 +167,7 @@ int HashTable::find(const Key& k) const {
 
 Value& HashTable::operator[](const Key& k) {
     int index = find(k);
-    if(index == -1){
+    if (index == -1) {
         int hash = calc_hash(k);
         size_++;
         static Value v("", 0);
@@ -181,12 +176,11 @@ Value& HashTable::operator[](const Key& k) {
     }
     const Cell* cell = cells[index];
     return const_cast<Value&>(cell->value);
-
 }
 
 bool HashTable::contains(const Key& k) const {
     int index = find(k);
-    if(index == -1){
+    if (index == -1) {
         return false;
     }
     return true;
@@ -194,7 +188,7 @@ bool HashTable::contains(const Key& k) const {
 
 bool HashTable::erase(const Key& k) {
     int index = find(k);
-    if(index == -1){
+    if (index == -1) {
         return false;
     }
     delete cells[index];
@@ -205,7 +199,7 @@ bool HashTable::erase(const Key& k) {
 
 const Value& HashTable::at(const Key& k) const {
     int index = find(k);
-    if(index == -1){
+    if (index == -1) {
         throw std::runtime_error("no key found");
     }
     return (cells[index]->value);
@@ -213,7 +207,7 @@ const Value& HashTable::at(const Key& k) const {
 
 Value& HashTable::at(const Key& k) {
     int index = find(k);
-    if(index == -1){
+    if (index == -1) {
         throw std::runtime_error("no key found");
     }
     return const_cast<Value&>(cells[index]->value);

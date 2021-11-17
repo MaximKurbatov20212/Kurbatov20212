@@ -3,9 +3,7 @@
 
 class Interpreter_error: public std::runtime_error{
 public:
-    Interpreter_error();
-    ...
-    
+    Interpreter_error(std::string msg): std::runtime_error(msg){};
 };
 
 #endif

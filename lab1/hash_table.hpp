@@ -9,13 +9,10 @@ struct Value {
     unsigned age;
 };
 
-
 class HashTable {
 public:
     // CR: merge this with a capacity ctor
-    HashTable();
-    
-    HashTable(int capacity);
+    HashTable(int capacity = MIN_CAPACITY);
 
     ~HashTable();
 
@@ -25,34 +22,30 @@ public:
     HashTable(const HashTable& b);
 
     // Prints all cells of table, prints "cells[i] = nullptr" if cell is empty
-    void print_table();
+    friend std::ostream& operator<< (std::ostream &out, const HashTable& a);
 
-    // Change cells in two tabels with equal index. 
+    // Changes cells in two tabels with equal index. 
     void swap(HashTable& b);
 
-    // Delete all cells but don't delete table.
+    // Deletes all cells but don't delete table.
     void clear();
 
-    // Delete cell in the table with such key
+    // Deletes cell in the table with such key and shifts all top cells 1 position down(if the cell below the current is not nullptr)
     // Returns true, if there is cell with current key
     // Returns false, if there is no cell with current key
     bool erase(const Key& k);
 
-
-    // Create and insert v to table.
+    // Creates and inserts v to table.
     // If there is cell this such key then don't insert and return false.
     bool insert(const Key& k, const Value& v);
 
-
-    // Return true, if table contains cell with such key
-    // Return false, if there is no cell with such key
+    // Returns true, if table contains cell with such key
+    // Returns false, if there is no cell with such key
     bool contains(const Key& k) const;
 
-
     // Returns link to exist value in the table, if there is cell with such key
-    // Create new value with key k, name = "", age = 0, if there is no cell with such key
+    // Creates new value with key k, name = "", age = 0, if there is no cell with such key
     Value& operator[](const Key& k);
-
 
     // Returns link to exist value in the table, if there is cell with such key
     // Exeption(std::runtime_error) if there is no cell with such key
@@ -65,25 +58,25 @@ public:
     // Returns count of not empty cells in the table
     size_t size() const;
 
-    // Return count of all cells in the table
+    // Returns count of all cells in the table
     size_t capacity() const;
 
-
     // Returns true, if table has not initialazed cells.
-    // Return false, if there is one or more initialazed cells
+    // Returns false, if there is one or more initialazed cells
     bool empty() const;
 
-    // Compare all cells of tables.
-    // Returns true, if cells with equal index are equal
-    // Returns false, if exist different cells with equal index
+    // Returns true, if the tables have the same cells (not necessarily in the same order)
+    // Else returns false
     friend bool operator==(const HashTable& a, const HashTable& b);
 
+    // Returns false, if the tables have the same cells (not necessarily in the same order)
+    // Else returns true
+    friend bool operator!=(const HashTable& a, const HashTable& b);
 
     // Compares all cells in the tables.
     // Returns false, if cells with equal index are equal
     // Returns true, if exist different cells with equal index
-    friend bool operator!=(const HashTable& a, const HashTable& b);
-
+    friend bool compare_cells(const HashTable& a, const HashTable& b);
 private:
     int capacity_;
     int size_;
@@ -92,7 +85,7 @@ private:
         Key key;
         const Value value;
         Cell() = default;
-        Cell(Key k, const Value v) : key(k), value(v) {}
+        Cell(Key k, const Value v) : key(k), value(v) {};
     };
 
     const Cell** cells;

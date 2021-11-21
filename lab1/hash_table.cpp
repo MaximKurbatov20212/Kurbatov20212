@@ -4,23 +4,17 @@
 #include <assert.h>
 
 // CR: if you want to keep this method replace it with operator<< 
-void HashTable::print_table() {
-    for (int i = 0; i < capacity_; i++) {
-        if (cells[i] != nullptr) {
-            std::cout << "key: " << cells[i]->key << "name: " << cells[i]->value.name << " age: " << cells[i]->value.age << std::endl;
+std::ostream& operator<<(std::ostream &out, const HashTable& a){
+    for (int i = 0; i < a.capacity_; i++) {
+        if (a.cells[i] != nullptr) {
+            out << "key: " << a.cells[i]->key << " name: " << a.cells[i]->value.name << " age: " << a.cells[i]->value.age << std::endl;
         }
         else {
-            std::cout << "cells[" << i << "] = nullptr" << std::endl;
+            out << "cells[" << i << "] = nullptr" << std::endl;
         }
     }
-
-    std::cout << std::endl;
-}
-
-void HashTable::init_cells() {
-    for (int i = 0; i < capacity_; i++) {
-        cells[i] = nullptr;
-    }
+    out << std::endl;
+    return out;
 }
 
 void HashTable::free_cells() {
@@ -34,18 +28,9 @@ void HashTable::free_cells() {
     cells = nullptr;
 }
 
-HashTable::HashTable(int capacity) : capacity_(capacity), size_(0), cells(new const Cell* [capacity_]) {
-    // CR: replace cells(new const Cell* [capacity_]) with cells(new const Cell* [capacity_]()) .
-    // CR: this way all of the pointers will be set to nullptr
-    // CR: same goes for other init_cells usages
-    init_cells();
-}
+HashTable::HashTable(int capacity) : capacity_(capacity), size_(0), cells(new const Cell* [capacity_]()) {}
 
-HashTable::HashTable() : capacity_(MIN_CAPACITY), size_(0), cells(new const Cell* [MIN_CAPACITY]) {
-    init_cells();
-}
-
-HashTable::HashTable(const HashTable& b) : capacity_(b.capacity_), size_(b.size_), cells(new const Cell* [b.capacity_]) {
+HashTable::HashTable(const HashTable& b) : capacity_(b.capacity_), size_(b.size_), cells(new const Cell* [b.capacity_]()) {
     copy_cells(b.cells, cells, b.capacity_);
 }
 
@@ -72,17 +57,22 @@ unsigned int HashTable::calc_hash(const std::string& expression) const {
     return hash;
 }
 
+// CR: we copy from b to this, right? so, from=b.cells, to=this.cells, no?
+// CR: please write a test after the fix for this situation
+ // you can try to reuse current cells array, no need to do delete[] (if capacities the same probably)
 HashTable& HashTable::operator=(const HashTable& b) {
     if (this != &b) {
-        // you can try to reuse current cells array, no need to do delete[] (if capacities the same probably)
+        if(capacity_ == b.capacity_){
+            size_ = b.size_;
+            capacity_ = b.capacity_;
+            copy_cells(b.cells, cells, b.capacity_);
+            return *this;
+        }
         free_cells();
         size_ = b.size_;
         capacity_ = b.capacity_;
-        cells = new const Cell * [b.capacity_];
-        init_cells();
-        // CR: we copy from b to this, right? so, from=b.cells, to=this.cells, no?
-        // CR: please write a test after the fix for this situation
-        copy_cells(cells, b.cells, b.capacity_);
+        cells = new const Cell * [b.capacity_]();
+        copy_cells(b.cells, cells, b.capacity_);     // fixed
     }
     return *this;
 }
@@ -103,22 +93,21 @@ void HashTable::clear() {
     size_ = 0;
 }
 
+// CR: i think compiler will optimize this, but it won't hurt to use if else instead 
 void HashTable::copy_cells(const Cell** from, const Cell** to, int capacity) {
     for (int i = 0; i < capacity; i++) {
-        // CR: i think compiler will optimize this, but it won't hurt to use if else instead
-        to[i] = nullptr;
         if (from[i] != nullptr) {
+            //to[i] = nullptr           not necessary
+            if(to[i] != nullptr){
+                delete to[i];
+            }
             to[i] = new Cell(from[i]->key, from[i]->value);
         }
     }
 }
 
  bool HashTable::resize() {
-    const Cell** array = new const Cell * [capacity_ * 2]; 
-    for (int i = 0; i < capacity_ * 2; i++) {
-        array[i] = nullptr;
-    }
-
+    const Cell** array = new const Cell * [capacity_ * 2](); 
     size_ = 0;
     for (int i = 0; i < capacity_ ; i++) {
         if (cells[i] != nullptr) {
@@ -143,13 +132,11 @@ bool HashTable::insert(const Key& k, const Value& v, int capacity, const Cell** 
             const Cell* cell = new const Cell(k, v);
             array[hash] = cell;
             size_++;
-            return true;
+            return true ;
         }
-        else if (k == array[hash]->key) {
-            delete array[hash];
-            // CR: replace current v instead
-            const Cell* cell = new Cell(k, v);
-            array[hash] = cell;
+        else if (k == array[hash]->key) { // CR: replace current v instead
+            const_cast<Key&>(array[hash]->key) = k;
+            const_cast<Value&>(array[hash]->value) = v;
             return false;
         }
         hash = (hash + 1) % capacity;
@@ -169,8 +156,9 @@ int HashTable::find(const Key& k) const {
         if (cells[hash] != nullptr && cells[hash]->key == k) {
             return hash;
         }
-        hash = (hash + 1) % capacity_;
+        hash = (hash + 1) % capacity_; 
     } while (temp != hash);
+    
     return  -1;
 }
 
@@ -195,6 +183,8 @@ bool HashTable::contains(const Key& k) const {
     return true;
 }
 
+// CR: actually now i think that it would be better to move everything after deleted cell until nullptr one cell to the left (if it is possible)
+// CR: then find would work faster (and it seems more important)
 bool HashTable::erase(const Key& k) {
     int index = find(k);
     if (index == -1) {
@@ -203,8 +193,17 @@ bool HashTable::erase(const Key& k) {
     delete cells[index];
     cells[index] = nullptr;
     size_--;
-    // CR: actually now i think that it would be better to move everything after deleted cell until nullptr one cell to the left (if it is possible)
-    // CR: then find would work faster (and it seems more important)
+
+    if(cells[index - 1] == nullptr){ 
+        return true;
+    }
+
+    index = (index + 1) % capacity_;
+    while(cells[index] != nullptr){
+        cells[index - 1] = cells[index];
+        cells[index] = nullptr;
+        index = (index + 1) % capacity_;
+    }
     return true;
 }
 
@@ -227,15 +226,28 @@ Value& HashTable::at(const Key& k) {
 }
 
 bool operator==(const HashTable& a, const HashTable& b) {
-    if (a.size() == 0 && b.size() == 0) {
+    if (a.size_ == 0 && b.size_ == 0) {
         return true;
     }
-    // CR: it's ok to have different capacity
-    if (a.size() != b.size() || a.capacity() != b.capacity()) {
+    if(a.size_ != b.size_) {
         return false;
     }
+    for(int i = 0; i < a.capacity_ ; i++){ 
+        if((a.cells[i] != nullptr) && (b.find(a.cells[i]->key) == -1)) return false;
+    }
+    return true;
+}
 
-    // CR: key-value pairs can be inserted in different order. in this case your == will return false
+bool operator!=(const HashTable& a, const HashTable& b) {
+    return !(a == b);
+}
+
+bool HashTable::empty() const {
+    return size_ == 0;
+}
+
+bool compare_cells(const HashTable& a, const HashTable& b) {  // for testing "copy_cells"
+
     for (int i = 0; i < a.capacity_; i++) {
         if ((a.cells[i] == nullptr) && (b.cells[i] == nullptr)) {
             continue;
@@ -250,12 +262,4 @@ bool operator==(const HashTable& a, const HashTable& b) {
         }
     }
     return true;
-}
-
-bool operator!=(const HashTable& a, const HashTable& b) {
-    return !(a == b);
-}
-
-bool HashTable::empty() const {
-    return size_ == 0;
 }

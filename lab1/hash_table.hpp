@@ -19,7 +19,7 @@ public:
 
     ~HashTable();
 
-    // Assign b to this, if b is not equal this and returns this
+    // Assign b to this, if b is not equal to this and returns this
     HashTable& operator=(const HashTable& b);
 
     HashTable(const HashTable& b);

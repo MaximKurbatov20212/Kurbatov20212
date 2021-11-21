@@ -33,7 +33,7 @@ void HashTable::free_cells() {
     cells = nullptr;
 }
 
-HashTable::HashTable(int capacity) : capacity_(capacity), size_(0), cells(new const Cell* [capacity_]) {
+HashTable::HashTable(int capacity) : capacity_(capacity), size_(0), cells(new const Cell* [capacity_]()) {
     init_cells();
 }
 
@@ -135,11 +135,12 @@ bool HashTable::insert(const Key& k, const Value& v, int capacity, const Cell** 
             const Cell* cell = new const Cell(k, v);
             array[hash] = cell;
             size_++;
-            return true ;
+            return true;
         }
         else if (k == array[hash]->key) {
             delete array[hash];
-            const Cell* cell = new const Cell(k, v);
+            // CR: replace current v instead
+            const Cell* cell = new Cell(k, v);
             array[hash] = cell;
             return false;
         }
@@ -194,6 +195,8 @@ bool HashTable::erase(const Key& k) {
     delete cells[index];
     cells[index] = nullptr;
     size_--;
+    // CR: actually now i think that it would be better to move everything after deleted cell until nullptr one cell to the left (if it is possible)
+    // CR: then find would work faster (and it seems more important)
     return true;
 }
 
@@ -219,10 +222,12 @@ bool operator==(const HashTable& a, const HashTable& b) {
     if (a.size() == 0 && b.size() == 0) {
         return true;
     }
+    // CR: it's ok to have different capacity
     if (a.size() != b.size() || a.capacity() != b.capacity()) {
         return false;
     }
 
+    // CR: key-value pairs can be inserted in different order. in this case your == will return false
     for (int i = 0; i < a.capacity_; i++) {
         if ((a.cells[i] == nullptr) && (b.cells[i] == nullptr)) {
             continue;

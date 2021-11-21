@@ -12,7 +12,7 @@ struct Value {
 
 class HashTable {
 public:
-
+    // CR: merge this with a capacity ctor
     HashTable();
     
     HashTable(int capacity);

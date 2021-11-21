@@ -3,6 +3,7 @@
 #include <exception>
 #include <assert.h>
 
+// CR: if you want to keep this method replace it with operator<< 
 void HashTable::print_table() {
     for (int i = 0; i < capacity_; i++) {
         if (cells[i] != nullptr) {
@@ -33,7 +34,10 @@ void HashTable::free_cells() {
     cells = nullptr;
 }
 
-HashTable::HashTable(int capacity) : capacity_(capacity), size_(0), cells(new const Cell* [capacity_]()) {
+HashTable::HashTable(int capacity) : capacity_(capacity), size_(0), cells(new const Cell* [capacity_]) {
+    // CR: replace cells(new const Cell* [capacity_]) with cells(new const Cell* [capacity_]()) .
+    // CR: this way all of the pointers will be set to nullptr
+    // CR: same goes for other init_cells usages
     init_cells();
 }
 
@@ -70,11 +74,14 @@ unsigned int HashTable::calc_hash(const std::string& expression) const {
 
 HashTable& HashTable::operator=(const HashTable& b) {
     if (this != &b) {
+        // you can try to reuse current cells array, no need to do delete[] (if capacities the same probably)
         free_cells();
         size_ = b.size_;
         capacity_ = b.capacity_;
         cells = new const Cell * [b.capacity_];
         init_cells();
+        // CR: we copy from b to this, right? so, from=b.cells, to=this.cells, no?
+        // CR: please write a test after the fix for this situation
         copy_cells(cells, b.cells, b.capacity_);
     }
     return *this;
@@ -98,6 +105,7 @@ void HashTable::clear() {
 
 void HashTable::copy_cells(const Cell** from, const Cell** to, int capacity) {
     for (int i = 0; i < capacity; i++) {
+        // CR: i think compiler will optimize this, but it won't hurt to use if else instead
         to[i] = nullptr;
         if (from[i] != nullptr) {
             to[i] = new Cell(from[i]->key, from[i]->value);

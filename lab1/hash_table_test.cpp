@@ -28,6 +28,40 @@ std::string gen_str(const int len) {
     return tmp_s;
 }
 
+ // copy_cells
+TEST(test_table , copy_cells){
+    HashTable table;
+    HashTable table1;
+    const Value a("Mark", 10);
+    const Value b("Maxim", 15);
+    table.insert("qadjk", a);
+    table1 = table;
+    EXPECT_TRUE(compare_cells(table1 , table));
+
+    table.insert("sllo", b);
+    table1 = table;
+    EXPECT_TRUE(compare_cells(table1 , table));
+
+    table.insert("mdsd", b);
+    table1 = table;
+    EXPECT_TRUE(compare_cells(table1 , table));
+
+    table.insert("adsado", b);
+    table1 = table;
+    EXPECT_TRUE(compare_cells(table1 , table));
+
+    table.insert("pdsado", b);
+    table1 = table;
+    EXPECT_TRUE(compare_cells(table1 , table));
+
+    table.insert("qwerty", b);
+    table1 = table;
+    EXPECT_TRUE(compare_cells(table1 , table));
+
+    //std::cout << table;
+    // table1<<table1;
+ }
+
 //rebuild
 TEST(test_table , resize){
     HashTable table;
@@ -337,11 +371,12 @@ TEST(test_table , at_exist_value_3) {
     EXPECT_TRUE(compare(c , a));
 }   
 
-//operator=
+//operator==
 TEST(test_table , assign_empty_table_to_empty_table) {
     HashTable table;
     HashTable table_1;
     table_1 = table;
+ 
     EXPECT_TRUE( table == table_1);
 }   
 

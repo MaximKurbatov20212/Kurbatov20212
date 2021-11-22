@@ -1,9 +1,8 @@
 #include <iostream>
 #include "hash_table.hpp"
 #include <exception>
-#include <assert.h>
+#include <cassert>
 
-// CR: if you want to keep this method replace it with operator<< 
 std::ostream& operator<<(std::ostream &out, const HashTable& a){
     for (int i = 0; i < a.capacity_; i++) {
         if (a.cells[i] != nullptr) {
@@ -21,11 +20,9 @@ void HashTable::free_cells() {
     for (int i = 0; i < capacity_; i++) {
         if (cells[i] != nullptr) {
             delete cells[i];
-            cells[i] = nullptr;
         }
     }
     delete[] cells;
-    cells = nullptr;
 }
 
 HashTable::HashTable(int capacity) : capacity_(capacity), size_(0), cells(new const Cell* [capacity_]()) {}
@@ -57,9 +54,6 @@ unsigned int HashTable::calc_hash(const std::string& expression) const {
     return hash;
 }
 
-// CR: we copy from b to this, right? so, from=b.cells, to=this.cells, no?
-// CR: please write a test after the fix for this situation
- // you can try to reuse current cells array, no need to do delete[] (if capacities the same probably)
 HashTable& HashTable::operator=(const HashTable& b) {
     if (this != &b) {
         if(capacity_ == b.capacity_){
@@ -93,7 +87,6 @@ void HashTable::clear() {
     size_ = 0;
 }
 
-// CR: i think compiler will optimize this, but it won't hurt to use if else instead 
 void HashTable::copy_cells(const Cell** from, const Cell** to, int capacity) {
     for (int i = 0; i < capacity; i++) {
         if (from[i] != nullptr) {
@@ -153,6 +146,7 @@ int HashTable::find(const Key& k) const {
     int hash = calc_hash(k);
     int temp = hash;
     do {
+        // CR: after fix in erase() if we found nullptr we can stop
         if (cells[hash] != nullptr && cells[hash]->key == k) {
             return hash;
         }
@@ -183,8 +177,6 @@ bool HashTable::contains(const Key& k) const {
     return true;
 }
 
-// CR: actually now i think that it would be better to move everything after deleted cell until nullptr one cell to the left (if it is possible)
-// CR: then find would work faster (and it seems more important)
 bool HashTable::erase(const Key& k) {
     int index = find(k);
     if (index == -1) {
@@ -199,6 +191,10 @@ bool HashTable::erase(const Key& k) {
     }
 
     index = (index + 1) % capacity_;
+    // CR: not so easy :) there's a chance that we have this scenario:
+    // CR: hash("foo") = 1 hash("bar") = 2
+    // CR: then we delete "foo" entry. seems to me that after that we won't find "bar", cause it'll be in a first cell.
+    // CR: please write a test after that fix
     while(cells[index] != nullptr){
         cells[index - 1] = cells[index];
         cells[index] = nullptr;
@@ -221,8 +217,6 @@ Value& HashTable::at(const Key& k) {
         throw std::runtime_error("no key found");
     }
     return const_cast<Value&>(cells[index]->value);
-
-    //return const_cast<Value&>(at(k)); calls itself    
 }
 
 bool operator==(const HashTable& a, const HashTable& b) {

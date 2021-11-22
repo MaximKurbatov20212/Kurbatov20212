@@ -18,7 +18,7 @@ std::string gen_str(const int len) {
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         "abcdefghijklmnopqrstuvwxyz";
     
-    srand( (unsigned) time(NULL) * getpid());
+    srand( (unsigned) time(nullptr) * getpid());
 
     tmp_s.reserve(len);
 

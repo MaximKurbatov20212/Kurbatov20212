@@ -4,15 +4,14 @@ typedef std::string Key;
 
 struct Value {
     Value() = default;
-    Value(std::string n, unsigned a = 0) : name(n), age(a) {}
+    explicit Value(std::string n, unsigned a = 0) : name(n), age(a) {}
     std::string name;
     unsigned age;
 };
 
 class HashTable {
 public:
-    // CR: merge this with a capacity ctor
-    HashTable(int capacity = MIN_CAPACITY);
+    explicit HashTable(int capacity = MIN_CAPACITY);
 
     ~HashTable();
 
@@ -84,7 +83,6 @@ private:
     struct Cell {
         Key key;
         const Value value;
-        Cell() = default;
         Cell(Key k, const Value v) : key(k), value(v) {};
     };
 
@@ -95,13 +93,11 @@ private:
 
     void free_cells();
 
-    void copy_cells(const Cell** to, const Cell** from, int capacity);
+    static void copy_cells(const Cell** to, const Cell** from, int capacity);
 
     bool resize();
 
     unsigned int calc_hash(const std::string& expression) const;
-
-    void init_cells();
 
     int find(const Key& k) const;
 

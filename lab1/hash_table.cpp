@@ -59,14 +59,16 @@ HashTable& HashTable::operator=(const HashTable& b) {
         if(capacity_ == b.capacity_){
             size_ = b.size_;
             capacity_ = b.capacity_;
-            copy_cells(b.cells, cells, b.capacity_);
+            copy_cells(b.cells, cells, b.capacity_);      // 
+            //copy_cells(cells, b.cells, b.capacity_);    
             return *this;
         }
         free_cells();
         size_ = b.size_;
         capacity_ = b.capacity_;
         cells = new const Cell * [b.capacity_]();
-        copy_cells(b.cells, cells, b.capacity_);     // fixed
+        copy_cells(b.cells, cells, b.capacity_);          //
+        //copy_cells(cells, b.cells, b.capacity_);
     }
     return *this;
 }
@@ -127,7 +129,7 @@ bool HashTable::insert(const Key& k, const Value& v, int capacity, const Cell** 
             size_++;
             return true ;
         }
-        else if (k == array[hash]->key) { // CR: replace current v instead
+        else if (k == array[hash]->key) { 
             const_cast<Key&>(array[hash]->key) = k;
             const_cast<Value&>(array[hash]->value) = v;
             return false;
@@ -142,16 +144,28 @@ bool HashTable::insert(const Key& k, const Value& v) {
     return insert(k, v, capacity_, cells);
 }
 
-int HashTable::find(const Key& k) const {
+int HashTable::find(const Key& k) const {       // after fix we should to check all cells in the block (above and below)
     int hash = calc_hash(k);
+    int hash_1 = hash;
     int temp = hash;
+    int flag = 0 , flag_1 = 0;
     do {
         // CR: after fix in erase() if we found nullptr we can stop
-        if (cells[hash] != nullptr && cells[hash]->key == k) {
-            return hash;
+        if(flag_1 == 0 && cells[hash_1] != nullptr){                  // go up
+            if(cells[hash_1]->key == k)   return hash_1;
         }
+        else flag_1 = 1;   // cell[hash_1] = nullptr  
+
+        if (flag == 0 && cells[hash] != nullptr ) {                  // go down
+            if(cells[hash]->key == k)   return hash;
+        }
+        else flag = 1;   // cell[hash] = nullptr                             
+        
+        if(flag == 1 && flag_1 == 1) return -1;   
+
+        hash_1 = (hash_1 - 1 + capacity_) % capacity_;
         hash = (hash + 1) % capacity_; 
-    } while (temp != hash);
+    } while (temp != hash );
     
     return  -1;
 }
@@ -186,18 +200,20 @@ bool HashTable::erase(const Key& k) {
     cells[index] = nullptr;
     size_--;
 
-    if(cells[index - 1] == nullptr){ 
-        return true;
-    }
-
+    int free_cell = index;          
     index = (index + 1) % capacity_;
+    
     // CR: not so easy :) there's a chance that we have this scenario:
     // CR: hash("foo") = 1 hash("bar") = 2
     // CR: then we delete "foo" entry. seems to me that after that we won't find "bar", cause it'll be in a first cell.
     // CR: please write a test after that fix
+    
     while(cells[index] != nullptr){
-        cells[index - 1] = cells[index];
-        cells[index] = nullptr;
+        if(calc_hash(cells[index]->key) != (uint)index){
+            cells[free_cell] = cells[index];
+            cells[index] = nullptr;
+            free_cell = index;
+        }
         index = (index + 1) % capacity_;
     }
     return true;

@@ -76,6 +76,8 @@ public:
     // Returns false, if cells with equal index are equal
     // Returns true, if exist different cells with equal index
     friend bool compare_cells(const HashTable& a, const HashTable& b);
+
+    int my_find(const Key& k){ return find(k); }; // for testing
 private:
     int capacity_;
     int size_;

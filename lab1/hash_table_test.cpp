@@ -28,39 +28,94 @@ std::string gen_str(const int len) {
     return tmp_s;
 }
 
- // copy_cells
-TEST(test_table , copy_cells){
+TEST(test_table, erase_your_test){
+    HashTable table;
+    const Value c("bar", 10);  
+    const Value a("baz", 1); 
+    table.insert("b", a);           //  hash("b") = hash("f") = 2
+    table.insert("f", c);
+    // cells[0] = nullptr
+    // cells[1] = nullptr
+    // key: b name: baz age: 1
+    // key: f name: bar age: 10
+
+    table.erase("b");
+
+    // cells[0] = nullptr
+    // cells[1] = nullptr
+    // key: f name: bar age: 10
+    // cells[3] = nullptr
+
+    EXPECT_TRUE(table.my_find("f") == 2);
+}
+
+
+TEST(test_table, erase_jump_two_cells){
+    HashTable table;
+    const Value c("Maxim", 10);  
+    const Value a("Vlad", 10);       
+    const Value b("John", 15);
+
+    //EXPECT
+    // cells[0] = nullptr
+    // key: a name: Maxim age: 10
+    // key: b name: Vlad age: 10
+    // key: f name: John age: 15
+    table.insert("a" , c);          //  hash("a") = 1
+    table.insert("b", a);           //  hash("b") = hash("f") = 2
+    table.insert("f", b);           
+
+    // erase("a") -> we should to move "John" two cells up
+    // EXPECT
+    // cells[0] = nullptr
+    // key: f name: John age: 15
+    // key: b name: Vlad age: 10
+    // cells[0] = nullptr
+    table.erase("a");
+    EXPECT_TRUE(table.my_find("a") ==  -1);
+    EXPECT_TRUE(table.my_find("f") ==  1);
+    EXPECT_TRUE(table.my_find("b") ==  2);
+}
+
+
+TEST(test_table, erase_check_new_method_find){
+    HashTable table(10);
+    const Value c("Maxim", 10);  
+    const Value a("Vlad", 10);       
+    const Value b("John", 15);
+    const Value k("Tim", 15);
+
+    table.insert("d" , c);          //  hash("d") = 0 =  hash("d")
+    table.insert("n" , c);
+    table.insert("f", a);           //  hash("f") = hash("p") = 2
+    table.insert("p", b);  
+    table.erase("n"); 
+    EXPECT_TRUE(table.contains("f"));
+    EXPECT_TRUE(table.contains("p"));
+    EXPECT_TRUE(table.contains("d"));
+    EXPECT_FALSE(table.contains("n"));
+}
+
+
+TEST(test_table, copy_cells){
     HashTable table;
     HashTable table1;
     const Value a("Mark", 10);
     const Value b("Maxim", 15);
-    table.insert("qadjk", a);
-    table1 = table;
-    EXPECT_TRUE(compare_cells(table1 , table));
-
-    table.insert("sllo", b);
-    table1 = table;
-    EXPECT_TRUE(compare_cells(table1 , table));
-
-    table.insert("mdsd", b);
-    table1 = table;
-    EXPECT_TRUE(compare_cells(table1 , table));
-
-    table.insert("adsado", b);
-    table1 = table;
-    EXPECT_TRUE(compare_cells(table1 , table));
-
-    table.insert("pdsado", b);
-    table1 = table;
-    EXPECT_TRUE(compare_cells(table1 , table));
-
+    table.insert("abcd", a);
     table.insert("qwerty", b);
-    table1 = table;
+    table1 = table;             //copy cells
+    EXPECT_TRUE(table.contains("abcd"));
+    EXPECT_TRUE(table1.contains("abcd"));
+    EXPECT_TRUE(table.contains("qwerty"));
+    EXPECT_TRUE(table1.contains("qwerty"));
     EXPECT_TRUE(compare_cells(table1 , table));
+    
+    // std::cout << table;
+    // std::cout << table1;
 
-    //std::cout << table;
-    // table1<<table1;
- }
+}
+
 
 //rebuild
 TEST(test_table , resize){

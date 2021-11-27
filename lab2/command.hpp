@@ -1,59 +1,62 @@
 #ifndef COMMAND
 #define COMMAND
+#include "interpreter.hpp"
+#include<stack>
 
 class Command{
 public:
+    Interpreter interpreter = Interpreter::get_instance();
     virtual void apply() = 0;    
 };
 
 class Add: public Command{
     void apply() override{
-        int left = Interpreter::stk.top();
-        Interpreter::stk.pop();
-        int right = Interpreter::stk.top();
-        Interpreter::stk.pop();
-        Interpreter::stk.push(left + right);
+        int left = interpreter.stk.top();
+        interpreter.stk.pop();
+        int right = interpreter.stk.top();
+        interpreter.stk.pop();
+        interpreter.stk.push(left + right);
     }
 };
 
 class Sub: public Command{
         void apply() override{
-        int left = Interpreter::stk.top();
-        Interpreter::stk.pop();
-        int right = Interpreter::stk.top();
-        Interpreter::stk.pop();
-        Interpreter::stk.push(right - left);
+        int left = interpreter.stk.top();
+        interpreter.stk.pop();
+        int right = interpreter.stk.top();
+        interpreter.stk.pop();
+        interpreter.stk.push(right - left);
     }
 };
 
 class Mul: public Command{
        void apply() override{
-        int left = Interpreter::stk.top();
-        Interpreter::stk.pop();
-        int right = Interpreter::stk.top();
-        Interpreter::stk.pop();
-        Interpreter::stk.push(left * right);
+        int left = interpreter.stk.top();
+        interpreter.stk.pop();
+        int right = interpreter.stk.top();
+        interpreter.stk.pop();
+        interpreter.stk.push(left * right);
     }
 };
 
 class Div: public Command{
         void apply() override{
-        int left = Interpreter::stk.top();
-        Interpreter::stk.pop();
-        int right = Interpreter::stk.top();
-        Interpreter::stk.pop();
+        int left = interpreter.stk.top();
+        interpreter.stk.pop();
+        int right = interpreter.stk.top();
+        interpreter.stk.pop();
         if(left == 0) throw(std::runtime_error("division by zero"));
-        Interpreter::stk.push(left / right);
+        interpreter.stk.push(left / right);
     }
 };
 
 class Mod: public Command{
         void apply() override{
-        int left = Interpreter::stk.top();
-        Interpreter::stk.pop();
-        int right = Interpreter::stk.top();
-        Interpreter::stk.pop();
-        Interpreter::stk.push(left % right);
+        int left = interpreter.stk.top();
+        interpreter.stk.pop();
+        int right = interpreter.stk.top();
+        interpreter.stk.pop();
+        interpreter.stk.push(left % right);
     }
 };
 

@@ -25,37 +25,62 @@ long Interpreter::is_num(std::string::iterator& it, std::string::iterator& end){
         }while(it != end);
         return res;
     }
-    return INT32_MAX + 1; // error flag
+    return INT32_MAX + 100; // error flag
 }
 
 long Interpreter::is_cmd(std::string::iterator& it, std::string::iterator& end){
-    if ((*it) == '+') return INT32_MAX + 2;
-    if ((*it) == '-') return INT32_MAX + 3;
-    if ((*it) == '*') return INT32_MAX + 4;
-    if ((*it) == '/') return INT32_MAX + 5;
+    if ((*it) == '+') {++(*it); return INT32_MAX + 1;}
+    if ((*it) == '-') {++(*it); return INT32_MAX + 2;}
+    if ((*it) == '*') {++(*it); return INT32_MAX + 3;}
+    if ((*it) == '/') {++(*it); return INT32_MAX + 4;}
     if ( (it + 1 != end) && (it + 2 != end)){
-        if ((*it) == 'm' && (*it) == 'o' && (*it) == 'd') return INT32_MAX + 6;
+        if ((*it) == 'm' && (*it) == 'o' && (*it) == 'd') {
+            (*it) += 3;
+            return INT32_MAX + 5;
+        }
     }
+    
     return 0;
 }
 
 int Interpreter::check(std::string::iterator& it, std::string::iterator& end){
-    if (is_cmd(it, end))            return 1;
-    if (is_num(it, end) != INT32_MAX + 1 ) return 2;
-    return 0; 
+    long lexema = is_cmd(it, end);
+    if (lexema != 0){return lexema;}
+
+    lexema = is_num(it, end);
+    if (lexema != INT32_MAX + 1 ) return lexema;
+
+    return -INT32_MAX - 1 ; 
 }
 
-auto get_cmd(std::string::iterator & it, std::string::iterator & end){
-    
-    std::cout << "no such command: '" << *it << "'";
+void Interpreter::handle_operand(std::string::iterator & it, std::string::iterator & end){
+    long a = is_num(it, end);
+    if(a > INT32_MAX + 5 || a < INT32_MAX + 1){             //operand
+        stk.push((int)a);
+    }
+    if(a = -INT32_MAX - 1){ throw std::runtime_error("no such command:");}      //error
+}
+
+auto Interpreter::get_cmd(std::string::iterator & it, std::string::iterator & end){
+    long a = is_cmd(it, end);
+    if(a <= INT32_MAX + 5 && a >= INT32_MAX + 1){     
+        std::map<int, creator>::iterator creator_it = my_creator.find((int)(a - INT32_MAX));            // find command
+        creator creator = (*creator_it).second;
+        return creator(it, end);
+    }
 }
 
 void Interpreter::interpret(std::string& exp){
-    std::string::iterator it = exp.begin();
+    std::string::iterator it = exp.begin();     
     std::string::iterator end = exp.end();
+
     while(it != end){
         try{
-            Command * cmd = get_cmd(it, end);
+            if(is_cmd(it, end)) {
+                Command* cmd = get_cmd(it, end);
+            }
+            else {handle_operand(it, end);};
+
         }catch(Interpreter_error& e){
             std::cout << e.what() << std::endl;
         }

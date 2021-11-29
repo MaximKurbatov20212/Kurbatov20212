@@ -1,9 +1,9 @@
 #include <iostream>
+#include <limits>
 #include "interpreter.hpp"
 #include "interpreter_error.hpp"
 #include "command.hpp"
-#include <limits>
-#include <stack> 
+#include "my_stack.hpp"
 
 bool Interpreter::is_digit(std::string::iterator& it){
     return (int)(*it) > (int)'1' && (int)(*it) < (int)'9';
@@ -39,7 +39,6 @@ long Interpreter::is_cmd(std::string::iterator& it, std::string::iterator& end){
             return INT32_MAX + 5;
         }
     }
-    
     return 0;
 }
 
@@ -56,12 +55,12 @@ int Interpreter::check(std::string::iterator& it, std::string::iterator& end){
 void Interpreter::handle_operand(std::string::iterator & it, std::string::iterator & end){
     long a = is_num(it, end);
     if(a > INT32_MAX + 5 || a < INT32_MAX + 1){             //operand
-        stk.push((int)a);
+        _stk.push((int)a);
     }
     if(a = -INT32_MAX - 1){ throw std::runtime_error("no such command:");}      //error
 }
 
-auto Interpreter::get_cmd(std::string::iterator & it, std::string::iterator & end){
+Command* Interpreter::get_cmd(std::string::iterator & it, std::string::iterator & end){
     long a = is_cmd(it, end);
     if(a <= INT32_MAX + 5 && a >= INT32_MAX + 1){     
         std::map<int, creator>::iterator creator_it = my_creator.find((int)(a - INT32_MAX));            // find command
@@ -78,6 +77,7 @@ void Interpreter::interpret(std::string& exp){
         try{
             if(is_cmd(it, end)) {
                 Command* cmd = get_cmd(it, end);
+                cmd->apply(Interpreter::get_instance()._stk);
             }
             else {handle_operand(it, end);};
 

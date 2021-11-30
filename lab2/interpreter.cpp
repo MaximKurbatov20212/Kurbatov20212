@@ -5,32 +5,41 @@
 #include "command.hpp"
 #include "my_stack.hpp"
 #include <map>
-#include <cassert>
 
 bool Interpreter::is_digit(std::string::iterator& it, std::string::iterator& end){
     if(is_negative(it, end)) {return true;}
     return (int)(*it) >= (int)'0' && (int)(*it) <= (int)'9';
 }
 
-
 long long Interpreter::get_num(std::string::iterator& it, std::string::iterator& end){
     long long res = 0;
-    long long deg = 10;
+    long long deg = 1;
     int k = 1;
-    if((*it) == '-'){ k = -1;}
-    else {res = (*it) - '0';}
-    it++; 
-    while(it != end){
+
+    if((*it) == '-'){ 
+        it++;
+        k = -1;
+    }
+    do{
         if(is_digit(it,end)){
             res = res * deg + ((*it) - '0'); 
-            std::cout << res << std::endl;
-            if(res > INT32_MAX){    // доделать
-                Interpreter_error("too much number");
+            //std::cout << "digit" << std::endl;
+            deg = 10;
+            
+            if(res > INT32_MAX){  
+                throw Interpreter_error("out of range of int");
             }
         }
-        else break;
+        else if((*it) ==  ' '){
+            it++;
+            break;
+        }
+        else {
+            throw Interpreter_error("no such command"); // Example: 123a
+        }
         it++;
-    }
+    }while(it != end);
+
     return res * k;
 }
 
@@ -69,16 +78,23 @@ long long Interpreter::get_command(std::string::iterator& it, std::string::itera
     if ((*it) == '-') {it++; return a + 2;}
     if ((*it) == '*') {it++; return a + 3;}
     if ((*it) == '/') {it++; return a + 4;}
-    if ((*it) == '.') {it++; return a + 8;}
     if ((*it) == '>') {it++; return a + 14;}
     if ((*it) == '<') {it++; return a + 15;}
     if ((*it) == '=') {it++; return a + 16;}
+
+    if((it + 1 != end) && (*it == '.') && (*(it + 1) == '"')){
+        it += 2;
+        return a + 17;
+    }
+
+    if ((*it) == '.') {it++; return a + 8;}
+
     if(it + 1 != end && (*it) == 'c' && *(it + 1) == 'r'){ //cr
         it += 2;
         return a + 13;
     }
 
-    if ( (it + 1 != end) && (it + 2 != end)){
+    if ((it + 1 != end) && (it + 2 != end)){
         if ((*it) == 'm' && *(it + 1) == 'o' && *(it + 2) == 'd') { //mod
             it += 3;
             return a + 5;
@@ -115,53 +131,64 @@ long long Interpreter::get_command(std::string::iterator& it, std::string::itera
             return a + 9;
         }
     }  
-
     return 0;
 }
 
 void Interpreter::handle_operand(std::string::iterator & it, std::string::iterator & end){
     long a = get_num(it, end);
-    std::cout << "number = " << a << std::endl;
-    if(a >= -INT32_MAX && a <= INT32_MAX ){             //operand
+    //std::cout << "number = " << a << std::endl;
+    if(a >= -INT32_MAX && a <= INT32_MAX ){             //is operand
         _stk.push((int)a);
-        std::cout << _stk;
+        std::cout << "<ok" << std::endl;
     }
 }
 
-Command* Interpreter::get_cmd(std::string::iterator& it, std::string::iterator & end){
-    long long a = get_command(it, end);  
+
+Command* Interpreter::get_cmd(std::string::iterator& it, std::string::iterator & end, bool& flag){
+    long long a = get_command(it, end); 
+    if(a - INT32_MAX == 17){flag = true;}   //print
     std::map<int, creator_t>::iterator creator_it = my_creator.find((int)(a - INT32_MAX));            // find command
     creator_t creator = (*creator_it).second;
-    return creator(it, end);
+    return creator();
 }
 
 void Interpreter::interpret(std::string& exp){
     std::string::iterator it = exp.begin();     
     std::string::iterator end = exp.end();
-
+    bool flag = false;
     while(true){
         try{
+
             if(is_cmd(it, end)) {
-                std::cout << "is_cmd " << std::endl;
-                Command* cmd = get_cmd(it, end);
-                cmd->apply(_stk);
-                std::cout << _stk;
+                Command* cmd = get_cmd(it, end, flag);
+                if(flag == true){
+                    cmd->print(it , end);
+                    flag = false;
+                }
+                else {
+                    cmd->apply(_stk);
+                }
             }
+
             else if(is_digit(it,end)) {
-                std::cout << "is_operand" << std::endl;
                 handle_operand(it, end);
             }
 
-            else if(it == end)      //we could shift it
+            else if ((*it) == ' '){it++;}
+
+            else if(it == end)  {
                 break;
+            }
 
             else {
                 it++;
-                throw Interpreter_error("unknown symbol");
+                throw Interpreter_error("no such command");
             }
 
         }catch(Interpreter_error& e){
             std::cout << e.what() << std::endl;
         }
+        
     }
+    std::cout << _stk;
 }

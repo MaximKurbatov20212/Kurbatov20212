@@ -1,5 +1,6 @@
 #include <iostream>
 #include <stack>
+#include <cstring>
 #include "interpreter.hpp"
 #include "command.hpp"
 
@@ -8,8 +9,8 @@ int main(){
     Interpreter interpreter = Interpreter::get_instance();
 
     while(true){
-        std::cout << ">";
-        std::cin >> exp;
+        std::cout << '>' ;
+        std::getline(std::cin , exp);
         interpreter.interpret(exp);
     }
     return 0;

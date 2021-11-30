@@ -7,7 +7,7 @@ class MyStack{
 public:
     // Returns the top number on the stack and deletes it
     int pop(){
-        if (stk.size() == 0) {throw (Interpreter_error("no elements"));}
+        if (stk.size() == 0) {throw (Interpreter_error("no elements\n"));}
         int a = stk.top();
         stk.pop();
         return a;
@@ -25,6 +25,9 @@ public:
     // Prints stack
     friend std::ostream& operator<<(std::ostream &out, const MyStack& a);
     
+    void clear(){
+        while(stk.size() > 0) {stk.pop();}
+    }
 private:
     std::stack<int> stk;     
 };

@@ -27,7 +27,7 @@ long long Interpreter::get_num(std::string::iterator& it, std::string::iterator&
             deg = 10;
             
             if(res > INT32_MAX){  
-                throw Interpreter_error("out of range of int");
+                throw Interpreter_error("out of range of int\n");
             }
         }
         else if((*it) ==  ' '){
@@ -35,7 +35,7 @@ long long Interpreter::get_num(std::string::iterator& it, std::string::iterator&
             break;
         }
         else {
-            throw Interpreter_error("no such command"); // Example: 123a
+            throw Interpreter_error("no such command\n"); // Example: 123a
         }
         it++;
     }while(it != end);
@@ -58,7 +58,9 @@ bool Interpreter::is_cmd(std::string::iterator& it, std::string::iterator& end){
 
     if((*it) == '+' || (*it) == '-' || (*it) == '*' || (*it) == '/' || (*it) == '.' || (*it) == '<'|| (*it) == '>'|| (*it) == '=') {return true;}
 
-    if ( (it + 1 != end) && (it + 2 != end)){
+    if (it + 1 != end && (*it) == 'c' && *(it + 1) == 'r') {return true;}
+
+    if ((it + 1 != end) && (it + 2 != end)){
         if ((*it) == 'm' && *(it + 1) == 'o' && *(it + 2) == 'd') {return true;}
         if ((*it) == 'd' && *(it + 1) == 'u' && *(it + 2) == 'p') {return true;}
         if ((*it) == 'r' && *(it + 1) == 'o' && *(it + 2) == 't') {return true;}
@@ -136,42 +138,60 @@ long long Interpreter::get_command(std::string::iterator& it, std::string::itera
 
 void Interpreter::handle_operand(std::string::iterator & it, std::string::iterator & end){
     long a = get_num(it, end);
-    //std::cout << "number = " << a << std::endl;
-    if(a >= -INT32_MAX && a <= INT32_MAX ){             //is operand
+        //std::cout << "number = " << a << std::endl;
+    if(a >= -INT32_MAX && a <= INT32_MAX ){             // is operand
         _stk.push((int)a);
-        std::cout << "<ok" << std::endl;
+        //std::cout << "<ok" << std::endl;
     }
 }
 
-
-Command* Interpreter::get_cmd(std::string::iterator& it, std::string::iterator & end, bool& flag){
+Command* Interpreter::get_cmd(std::string::iterator& it, std::string::iterator & end){
     long long a = get_command(it, end); 
-    if(a - INT32_MAX == 17){flag = true;}   //print
+    if(a - INT32_MAX == 17){info.is_print = true;}   //print
+    else if(a - INT32_MAX == 13){info.is_cr = true;}
+    else if(a - INT32_MAX == 8 || a - INT32_MAX == 12){info.is_point_or_emit = true;}
     std::map<int, creator_t>::iterator creator_it = my_creator.find((int)(a - INT32_MAX));            // find command
     creator_t creator = (*creator_it).second;
     return creator();
 }
 
+void Interpreter::handle_cmd(std::string::iterator& it, std::string::iterator & end){
+    Command* cmd = get_cmd(it, end);
+
+    if(info.is_print == true){
+        cmd->print(it , end, result);
+        info.is_print = false;
+    }
+    if(info.is_cr == true){
+        cmd->apply(result);
+        info.is_cr = false;
+    } 
+    if(info.is_point_or_emit == true){
+        cmd->apply(_stk, result);
+        info.is_point_or_emit = false;
+    } 
+    else {
+        cmd->apply(_stk);
+    }
+}
+
 void Interpreter::interpret(std::string& exp){
+    result.clear();
+    info.clear();
     std::string::iterator it = exp.begin();     
     std::string::iterator end = exp.end();
-    bool flag = false;
+    size_t count = 0; // <ok
+    bool flag = true;
     while(true){
         try{
-
             if(is_cmd(it, end)) {
-                Command* cmd = get_cmd(it, end, flag);
-                if(flag == true){
-                    cmd->print(it , end);
-                    flag = false;
-                }
-                else {
-                    cmd->apply(_stk);
-                }
+                handle_cmd(it, end);
+                info.c_cmd++;
             }
 
             else if(is_digit(it,end)) {
                 handle_operand(it, end);
+                info.c_operands++;
             }
 
             else if ((*it) == ' '){it++;}
@@ -182,13 +202,24 @@ void Interpreter::interpret(std::string& exp){
 
             else {
                 it++;
-                throw Interpreter_error("no such command");
+
+                if(flag) {
+                    flag = false;
+                    throw Interpreter_error("no such command\n");
+                }
+
             }
 
         }catch(Interpreter_error& e){
-            std::cout << e.what() << std::endl;
+            info.c_exep++;
+            result.append(e.what());
+            //std::cout << e.what() << std::endl;
         }
-        
     }
-    std::cout << _stk;
+
+    if(info.c_exep == 0 && info.c_cmd == 0 && info.c_operands > 0){
+        //std::cout<< "<ok" << std::endl;
+        result.append("< ok\n");
+    }
+    //std::cout << _stk;
 }

@@ -9,7 +9,7 @@ int main(){
     Interpreter interpreter = Interpreter::get_instance();
 
     while(true){
-        std::cout << '>' ;
+        std::cout << "> ";
         std::getline(std::cin , exp);
         interpreter.interpret(exp);
     }

@@ -33,6 +33,13 @@ add_executable(
   my_stack.cpp
 )
 
+if ( CMAKE_COMPILER_IS_GNUCC )
+  target_compile_options(test_interpreter PRIVATE "-Wall"p)
+endif()
+if ( MSVC )
+  target_compile_options(test_interpreter PRIVATE "/W4")
+endif()
+
 target_link_libraries(
   test_interpreter
   gtest_main

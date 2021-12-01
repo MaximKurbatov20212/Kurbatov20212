@@ -30,12 +30,12 @@ TEST(interpreter_test, push_many_positive_number ){
 
 
 TEST(interpreter_test, push_multi_digit_positive_number ){
-    std::string exp = "1234567890";
+    std::string exp = "2147483647";
     Interpreter interpreter = Interpreter::get_instance();
     interpreter.interpret(exp);  
 
     EXPECT_EQ(interpreter.get_result(), "< ok\n");  
-    EXPECT_EQ(interpreter._stk.pop(), 1234567890);
+    EXPECT_EQ(interpreter._stk.pop(), 2147483647);
 }
 
 
@@ -301,12 +301,12 @@ TEST(interpreter_test, command_Equal_cannot_be_used ){
     EXPECT_EQ(interpreter.get_result(), "too few elements\n");
 }    
 
-// TEST(interpreter_test, command_Print_without_second_quote){
-//     std::string exp = ".\"123";
-//     Interpreter interpreter = Interpreter::get_instance();
-//     interpreter.interpret(exp);
-//     EXPECT_EQ(interpreter.get_result(), "there is no second \"\n");
-// }    
+TEST(interpreter_test, command_Print_without_second_quote){
+    std::string exp = ".\"123";
+    Interpreter interpreter = Interpreter::get_instance();
+    interpreter.interpret(exp);
+    EXPECT_EQ(interpreter.get_result(), "there is no second \"\n");
+}    
 
 // Command
 
@@ -706,3 +706,5 @@ TEST(interpreter_test, numbers_starting_at_zero){
     EXPECT_EQ(interpreter._stk.pop(), 2);
     interpreter._stk.clear();
 }   
+
+

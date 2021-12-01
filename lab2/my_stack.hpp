@@ -25,6 +25,7 @@ public:
     // Prints stack
     friend std::ostream& operator<<(std::ostream &out, const MyStack& a);
     
+    // Deleted all elements
     void clear(){
         while(stk.size() > 0) {stk.pop();}
     }

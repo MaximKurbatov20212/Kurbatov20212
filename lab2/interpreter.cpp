@@ -15,7 +15,6 @@ long long Interpreter::get_num(std::string::iterator& it, std::string::iterator&
     long long res = 0;
     long long deg = 1;
     int k = 1;
-
     if((*it) == '-'){ 
         it++;
         k = -1;
@@ -180,7 +179,6 @@ void Interpreter::interpret(std::string& exp){
     info.clear();
     std::string::iterator it = exp.begin();     
     std::string::iterator end = exp.end();
-    size_t count = 0; // <ok
     bool flag = true;
     while(true){
         try{

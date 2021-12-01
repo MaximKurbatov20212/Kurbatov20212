@@ -3,12 +3,13 @@
 #include"my_stack.hpp"
 #include <cstring>
 #include <cmath>
+#include <climits>
 
 class Command{
 public:
     virtual void apply(MyStack& _stk) {};
     
-    virtual void apply(std::string& result) {};
+    virtual void apply(std::string& result) {} ;
 
     virtual void apply(MyStack& _stk, std::string& result) {};
 
@@ -20,7 +21,7 @@ public:
             throw Interpreter_error("too few elements\n");
         }
     }
-
+    // Converts from int to string
     void get_str(int a, std::string& str){ 
         int b = a % 10;
         a = a / 10;
@@ -34,15 +35,23 @@ public:
         }
         //str+='\n';
     }
+
+    bool is_overflow(long long& res){
+        if (res > INT32_MAX || res < -INT32_MAX ) {return true;}
+        return false;
+    }
 };
 
 class Add: public Command{
     // Adds the top two numbers on the stack and pushes the result onto the stack
     // Throws exception "too few elements", if stack size < 2
+    // Throws exception "out of range of int", if a + b is not int
     void apply(MyStack& _stk) override{
         check(_stk , 2);
         int right = _stk.pop();
         int left = _stk.pop();
+        long long res = right + left;
+        if(is_overflow(res)) throw Interpreter_error("out of range of int\n");
         _stk.push(left + right);
     }
 };
@@ -50,22 +59,29 @@ class Add: public Command{
 class Sub: public Command{
     // Subtracts the top number from the second and pushes the result onto the stack
     // Throws exception "too few elements", if stack size < 2
+    // Throws exception "out of range of int", if a - b is not int
     void apply(MyStack& _stk) override{
         check(_stk, 2);
         int right = _stk.pop();
         int left = _stk.pop();
-        _stk.push(left - right);
+        long long res = left - right;
+        if(is_overflow(res)) throw Interpreter_error("out of range of int\n");
+        _stk.push(res);
     }
 };
 
 class Mul: public Command{
     // Multiplies the top two numbers on the stack and pushes the result onto the stack
     // Throws exception "too few elements", if stack size < 2
+    // Throws exception "out of range of int", if a * b is not int
     void apply(MyStack& _stk) override{
         check(_stk, 2);
         int right = _stk.pop();
         int left = _stk.pop();
-        _stk.push(left * right);
+        long long res = left * right;
+        //std::cerr << res;
+        if(is_overflow(res)) throw Interpreter_error("out of range of int\n");
+        _stk.push(res);
     }
 };
 
@@ -86,6 +102,7 @@ class Mod: public Command{
     // Throws exception "too few elements", if stack size < 2
     void apply(MyStack& _stk) override{
         check(_stk, 2);
+        if(_stk.top() == 0) {throw Interpreter_error("division by zero\n");}
         int right = _stk.pop();
         int left = _stk.pop();
         _stk.push(left % right);
@@ -215,6 +232,13 @@ class Equal: public Command{
 class Print: public Command{ 
     // Prints all between ." "
     void print(std::string::iterator& it, std::string::iterator& end, std::string& result) override{
+        std::string::iterator it_1 = it;
+        std::string::iterator end_1 = end;
+        do{
+            if(it_1 == end_1){throw Interpreter_error("there is no second \"\n");}
+            it_1++;
+        }while((*it_1) != '"');
+
         while(it != end){
             result+=(*it);
             it++;
@@ -225,7 +249,7 @@ class Print: public Command{
                 return;
             }
         }
-        throw Interpreter_error("there is no second \"\n");
     }
+    
 };
 #endif

@@ -34,7 +34,7 @@ add_executable(
 )
 
 if ( CMAKE_COMPILER_IS_GNUCC )
-  target_compile_options(test_interpreter PRIVATE "-Wall"p)
+  target_compile_options(test_interpreter PRIVATE "-Wall")
 endif()
 if ( MSVC )
   target_compile_options(test_interpreter PRIVATE "/W4")

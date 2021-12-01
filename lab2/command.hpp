@@ -1,14 +1,20 @@
 #ifndef COMMAND
 #define COMMAND
 #include"my_stack.hpp"
-#include <cstring>
-#include <cmath>
-#include <climits>
+#include <string>
+//#include <cmath>
+//#include <climits>
+#include <sstream>
 
 class Command{
 public:
+    struct Context {
+        MyStack & stack;
+        std::string & result;
+    };
+
     virtual void apply(MyStack& _stk) {};
-    
+
     virtual void apply(std::string& result) {} ;
 
     virtual void apply(MyStack& _stk, std::string& result) {};
@@ -41,6 +47,19 @@ public:
         return false;
     }
 };
+
+
+// std::function
+// Add extends BinOp
+// Add::op -> std::function<int(int, int)>
+// std::divides, std::multiplies
+
+// BinCommand::apply(Context & context)
+// virtual BinCommand:op -> std::function<int(int, int)>
+// stack = context.stack
+// n1 = stack.pop();
+// n2 = stack.pop();
+// stack.push(this.op()(n1, n2))
 
 class Add: public Command{
     // Adds the top two numbers on the stack and pushes the result onto the stack
@@ -130,12 +149,13 @@ class Drop: public Command{
 class Point: public Command{
     // Deletes top number and prints it
     // Throws exception "too few elements", if stack size < 1
-    void apply(MyStack& _stk, std::string& result) override{
+    void apply(MyStack& _stk, std::stringstream & result) override{
         check(_stk, 1);
         std::string str;
         int a = _stk.pop();
-        if (a < 0){result.append("-");}
-        get_str(abs(a), result);
+        result << a;
+//        if (a < 0){result.append("-");}
+//        get_str(abs(a), result);
     }
 };
 
@@ -183,7 +203,7 @@ class Emit: public Command{
     void apply(MyStack& _stk, std::string& result) override{
         check(_stk, 1);
         int top = _stk.pop();
-        result+=(char)(top);
+        result+=char(top);
         result+='\n';
     }
 };
@@ -203,7 +223,7 @@ class Greater: public Command{
         check(_stk, 2);
         int top_1 = _stk.pop();
         int top_2 = _stk.pop();
-        _stk.push((int)(top_2 > top_1));
+        _stk.push(top_2 > top_1);
     }
 };
 
@@ -214,7 +234,7 @@ class Less: public Command{
         check(_stk, 2);
         int top_1 = _stk.pop();
         int top_2 = _stk.pop();
-        _stk.push((int)(top_2 < top_1));   
+        _stk.push(top_2 < top_1);
     }
 };
 
@@ -231,24 +251,34 @@ class Equal: public Command{
 
 class Print: public Command{ 
     // Prints all between ." "
-    void print(std::string::iterator& it, std::string::iterator& end, std::string& result) override{
+    void print(std::string::iterator& it, std::string::iterator& end, std::stringstream & result) override{
         std::string::iterator it_1 = it;
         std::string::iterator end_1 = end;
-        do{
-            if(it_1 == end_1){throw Interpreter_error("there is no second \"\n");}
-            it_1++;
-        }while((*it_1) != '"');
+        std::stringstream str;
 
-        while(it != end){
-            result+=(*it);
+        while (it != end && *it != '"') {
+            str << *it;
             it++;
-            if((*it) == '"'){
-                it++;
-                result+=('\n');
-                //std::cout << std::endl;  
-                return;
-            }
         }
+        if (it == end) throw Interpreter_error("closing bracket is missing");
+        it++;
+        result << str;
+
+//        do{
+//            if(it_1 == end_1){throw Interpreter_error("there is no second \"\n");}
+//            it_1++;
+//        }while((*it_1) != '"');
+//
+//        while(it != end){
+//            result+=(*it);
+//            it++;
+//            if((*it) == '"'){
+//                it++;
+//                result+=('\n');
+//                //std::cout << std::endl;
+//                return;
+//            }
+//        }
     }
     
 };

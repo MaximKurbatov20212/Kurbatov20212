@@ -27,12 +27,12 @@ public:
     // Exception  "too few elements" if command cannot be applied
     void interpret(std::string& exp);
 
-    // Returns suitible command    
+    // Returns suitable command
     Command* get_cmd(std::string::iterator & it, std::string::iterator & end);
 
     typedef Command*(*creator_t)();    // ptr to function(Ctor different commands)
 
-    // Registers commands 
+    // Register commands
     bool register_command(int i, creator_t cmd){    
         my_creator[i] = cmd;
         return true;
@@ -62,7 +62,7 @@ private:
     };
 
     Info info;
-    std::map<int, creator_t> my_creator; 
+    std::map<std::string, Command> my_creator;
     void handle_operand(std::string::iterator & it, std::string::iterator & end);
     bool is_digit(std::string::iterator& it, std::string::iterator& end);
     long long get_num(std::string::iterator& it, std::string::iterator& end);

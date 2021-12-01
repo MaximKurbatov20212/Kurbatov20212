@@ -8,10 +8,12 @@
 
 bool Interpreter::is_digit(std::string::iterator& it, std::string::iterator& end){
     if(is_negative(it, end)) {return true;}
+    // std::is_digit
     return (int)(*it) >= (int)'0' && (int)(*it) <= (int)'9';
 }
 
 long long Interpreter::get_num(std::string::iterator& it, std::string::iterator& end){
+    // std::atoi
     long long res = 0;
     long long deg = 1;
     int k = 1;
@@ -141,6 +143,29 @@ void Interpreter::handle_operand(std::string::iterator & it, std::string::iterat
     if(a >= -INT32_MAX && a <= INT32_MAX ){             // is operand
         _stk.push((int)a);
         //std::cout << "<ok" << std::endl;
+    }
+}
+
+Command* Interpreter::get_cmd(std::string::iterator& it, std::string::iterator & end){
+    std::stringstream result;
+    Context context = {result, _stack};
+    while (it != end) {
+        char c = *it;
+        if (std::is_digit(c)) {
+            int n = read_number(it);
+            stack.push(n);
+        }
+        else if (std::is_whitespace(c)) {
+            continue;
+        }
+        std::string cmd = read_until_space(it);
+        auto cmd_it = my_creator.find(cmd);
+        if (cmd_it == my_creator.end()) {
+            // TODO: print error
+            return;
+        }
+        *cmd_it->second.apply(context);
+        it++;
     }
 }
 

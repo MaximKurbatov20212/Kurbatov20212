@@ -121,11 +121,11 @@ TEST(test_table , test_jump){
 }
 
 TEST(test_table, check_correctness_of_erase){ // 
-    HashTable table(8);
+    HashTable table;
 
     srand((unsigned)time(nullptr) * getpid());  
 
-    for(int i = 0; i < 10000000 ; i++){
+    for(int i = 0; i < 1000000 ; i++){
         //std::cout << "TEST " << i << std::endl;
         std::string bar_key = random_string(1); // strings can't be equal
         std::string baz_key = random_string(2);
@@ -161,8 +161,6 @@ TEST(test_table, check_correctness_of_erase){ //
         abc_key.clear();
     }      
 }
-
-
 
 TEST(test_table, erase_check_new_method_find){
     HashTable table(10);

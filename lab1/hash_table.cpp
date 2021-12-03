@@ -45,15 +45,19 @@ size_t HashTable::capacity() const {
     return capacity_;
 }
 
-unsigned int HashTable::calc_hash(const std::string& expression) const {
+unsigned int HashTable::calc_hash(const std::string& expression,  int capacity) const {
     int len = expression.length();
     int p = 1;
     unsigned int hash = 0;
     for (int i = 0; i < len; i++) {
-        hash = (hash + expression[i] * p) % capacity_;
+        hash = (hash + expression[i] * p) % capacity;
         (p * PRIME_1 > 0) ? p *= PRIME_1 : 1;
     }
     return hash;
+}
+
+unsigned int HashTable::calc_hash(const std::string& expression) const{
+    return calc_hash(expression, capacity_);
 }
 
 HashTable& HashTable::operator=(const HashTable& b) {
@@ -100,7 +104,7 @@ void HashTable::copy_cells(const Cell** from, const Cell** to, int capacity) {
     }
 }
 
- bool HashTable::resize() {
+bool HashTable::resize() {
     const Cell** array = new const Cell * [capacity_ * 2](); 
     size_ = 0;
     for (int i = 0; i < capacity_ ; i++) {
@@ -115,11 +119,14 @@ void HashTable::copy_cells(const Cell** from, const Cell** to, int capacity) {
 }
 
 bool HashTable::insert(const Key& k, const Value& v, int capacity, const Cell** array) {
+    int hash = 0;
     if (size_ * 4 >= capacity * 3) { // 75%
         resize();
         array = cells; // after resizing "cells" and we should accept changes
+        capacity *= 2;
     }
-    int hash = calc_hash(k);
+    hash = calc_hash(k, capacity);
+
     int temp = hash;
     do {
         if (array[hash] == nullptr) {
@@ -173,34 +180,6 @@ bool HashTable::contains(const Key& k) const {
     return true;
 }
 
-// void HashTable::shift(int& index){
-//     int overflow = 0;
-//     int free_cell = index;          
-//     int dist = 0;
-//     index = (index + 1) % capacity_;
-//     if(index == 0) overflow += capacity_;
-
-//     while(cells[index] != nullptr){
-
-//         uint hash = calc_hash(cells[index]->key) + overflow;
-
-//         if(overflow == capacity_ && (((hash % capacity_ != (uint)index) && (hash % capacity_ <= free_cell )) || (free_cell == hash % capacity_))){
-//             cells[free_cell] = cells[index];
-//             cells[index] = nullptr;
-//             free_cell = index;
-//             overflow = 0;
-//         }
-//         else if (overflow != capacity_ && (hash % capacity_ != (uint)index) && (hash % capacity_ <= free_cell) || (hash % capacity_ == capacity_ - 1) ){
-//             cells[free_cell] = cells[index];
-//             cells[index] = nullptr;
-//             free_cell = index;
-//         }   
-//         index = (index + 1) % capacity_;
-//         if(index == 0) overflow = capacity_;
-//     }
-// }
-
-
 int HashTable::calc_dist(int a, int b){ // Distance between cells
     if (a - b > 0) return  (a - b) ;
     return (capacity_ - (b - a));
@@ -225,8 +204,6 @@ void HashTable::shift(int& index){
         index = (index + 1) % capacity_;
     }
 }
-
-
 
 bool HashTable::erase(const Key& k) {
     int index = find(k);

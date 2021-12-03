@@ -74,14 +74,6 @@ public:
     // Else returns true
     friend bool operator!=(const HashTable& a, const HashTable& b);
 
-    // Compares all cells in the tables.
-    // Returns false, if cells with equal index are equal
-    // Returns true, if exist different cells with equal index
-    friend bool compare_cells(const HashTable& a, const HashTable& b);
-
-    int calc_dist(int index, int hash);
-
-    int my_find(const Key& k){ return find(k); }; // for testing
 private:
     int capacity_;
     int size_;
@@ -104,10 +96,14 @@ private:
     bool resize();
 
     unsigned int calc_hash(const std::string& expression) const;
+    
+    unsigned int calc_hash(const std::string& expression,  int capacity) const;
 
     int find(const Key& k) const;
 
     bool insert(const Key& k, const Value& v, int capacity, const Cell** array);
+
+    int calc_dist(int index, int hash);
 
     void shift(int& index);
 };

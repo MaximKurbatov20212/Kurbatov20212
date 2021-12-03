@@ -3,11 +3,32 @@
 #include <ctime>
 #include <unistd.h>
 #include <limits.h>
-
+#include <iostream>
+#include <random>
+#include <string>
 bool compare(const Value& a , const Value& b ){
     if (a.name == b.name && a.age == b.age)
         return true;
     return false;      
+}
+
+std::string random_string(std::string::size_type length)
+{
+    static auto& chrs = "0123456789"
+        "abcdefghijklmnopqrstuvwxyz"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    thread_local static std::mt19937 rg{std::random_device{}()};
+    thread_local static std::uniform_int_distribution<std::string::size_type> pick(0, sizeof(chrs) - 2);
+
+    std::string s;
+
+    s.reserve(length);
+
+    while(length--)
+        s += chrs[pick(rg)];
+
+    return s;
 }
 
 // random string
@@ -28,54 +49,119 @@ std::string gen_str(const int len) {
     return tmp_s;
 }
 
-TEST(test_table, erase_your_test){
-    HashTable table;
-    const Value c("bar", 10);  
-    const Value a("baz", 1); 
-    table.insert("b", a);           //  hash("b") = hash("f") = 2
-    table.insert("f", c);
-    // cells[0] = nullptr
-    // cells[1] = nullptr
-    // key: b name: baz age: 1
-    // key: f name: bar age: 10
+TEST(test_table, erase_old_counterexample){    // hash(b) = hash(j) , hash(a) = hash(i)
+    HashTable table(8);
+    const Value bar("bar", 10);  
+    const Value baz("baz", 1); 
+    const Value foo("foo", 1); 
+    const Value abc("abc", 1); 
+    table.insert("b", foo);
+    table.insert("j", baz);
+    table.insert("a"  , bar); 
+    table.insert("i", abc); 
 
-    table.erase("b");
-
-    // cells[0] = nullptr
-    // cells[1] = nullptr
-    // key: f name: bar age: 10
-    // cells[3] = nullptr
-
-    EXPECT_TRUE(table.my_find("f") == 2);
-}
-
-
-TEST(test_table, erase_jump_two_cells){
-    HashTable table;
-    const Value c("Maxim", 10);  
-    const Value a("Vlad", 10);       
-    const Value b("John", 15);
-
-    //EXPECT
-    // cells[0] = nullptr
-    // key: a name: Maxim age: 10
-    // key: b name: Vlad age: 10
-    // key: f name: John age: 15
-    table.insert("a" , c);          //  hash("a") = 1
-    table.insert("b", a);           //  hash("b") = hash("f") = 2
-    table.insert("f", b);           
-
-    // erase("a") -> we should to move "John" two cells up
-    // EXPECT
-    // cells[0] = nullptr
-    // key: f name: John age: 15
-    // key: b name: Vlad age: 10
-    // cells[0] = nullptr
+    /*
+    cells[0] = nullptr
+    key: a name: bar age: 10 hash = 1
+    key: b name: foo age: 1 hash = 2
+    key: j name: baz age: 1 hash = 2
+    key: i name: abc age: 1 hash = 1
+    cells[5] = nullptr
+    cells[6] = nullptr
+    cells[7] = nullptr
+    */
     table.erase("a");
-    EXPECT_TRUE(table.my_find("a") ==  -1);
-    EXPECT_TRUE(table.my_find("f") ==  1);
-    EXPECT_TRUE(table.my_find("b") ==  2);
+    table.erase("b");
+    table.erase("i");
+    EXPECT_TRUE(table.contains("j"));  
 }
+
+TEST(test_table, todays_test){
+    HashTable table(8);
+    const Value bar("bar", 10);  
+    const Value baz("baz", 1); 
+    const Value foo("foo", 1); 
+    const Value abc("abc", 1); 
+    table.insert("h", bar);
+    table.insert("p", baz);
+    table.insert("g", foo); 
+
+    /*
+    key: h name: bar age: 10 hash = 0
+    key: p name: baz age: 1 hash = 0
+    cells[2] = nullptr
+    cells[3] = nullptr
+    cells[4] = nullptr
+    cells[5] = nullptr
+    cells[6] = nullptr
+    key: g name: foo age: 1 hash = 7
+    */
+   
+    table.erase("g");
+    EXPECT_TRUE(table.contains("h"));
+    EXPECT_TRUE(table.contains("p"));
+}
+
+
+TEST(test_table , test_jump){
+    HashTable table;
+    const Value bar("bar", 10);  
+    const Value baz("baz", 1); 
+    table.insert("c", bar);
+    table.insert("g", baz);
+
+/*
+    key: g name: baz age: 1 hash = 3
+    cells[1] = nullptr
+    cells[2] = nullptr
+    key: c name: bar age: 10 hash = 3
+*/
+    table.erase("c");
+    EXPECT_TRUE(table.contains("g"));
+}
+
+TEST(test_table, check_correctness_of_erase){ // 
+    HashTable table(8);
+
+    srand((unsigned)time(nullptr) * getpid());  
+
+    for(int i = 0; i < 10000000 ; i++){
+        //std::cout << "TEST " << i << std::endl;
+        std::string bar_key = random_string(1); // strings can't be equal
+        std::string baz_key = random_string(2);
+        std::string foo_key = random_string(3);
+        std::string abc_key = random_string(4);
+
+        const Value bar("bar", 10);  
+        const Value baz("baz", 1); 
+        const Value foo("foo", 1); 
+        const Value abc("abc", 1); 
+
+        table.insert(bar_key, bar);
+        table.insert(baz_key, baz);
+        table.insert(foo_key, foo); 
+        table.insert(abc_key, abc);
+
+        table.erase(bar_key);
+        EXPECT_TRUE(table.contains(baz_key));
+        EXPECT_TRUE(table.contains(foo_key));
+        EXPECT_TRUE(table.contains(abc_key));
+
+        table.erase(abc_key);
+        EXPECT_TRUE(table.contains(baz_key));
+        EXPECT_TRUE(table.contains(foo_key));
+
+        table.erase(foo_key);
+        EXPECT_TRUE(table.contains(baz_key));
+
+        table.clear();
+        bar_key.clear();
+        foo_key.clear();
+        baz_key.clear();    
+        abc_key.clear();
+    }      
+}
+
 
 
 TEST(test_table, erase_check_new_method_find){
@@ -109,11 +195,6 @@ TEST(test_table, copy_cells){
     EXPECT_TRUE(table1.contains("abcd"));
     EXPECT_TRUE(table.contains("qwerty"));
     EXPECT_TRUE(table1.contains("qwerty"));
-    EXPECT_TRUE(compare_cells(table1 , table));
-    
-    // std::cout << table;
-    // std::cout << table1;
-
 }
 
 

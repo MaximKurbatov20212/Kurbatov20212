@@ -11,7 +11,9 @@ struct Value {
 
 class HashTable {
 public:
-    explicit HashTable(int capacity = MIN_CAPACITY);
+    // Creates hashtable with MIN_CAPACITY or greater capacity
+    // If capacity < MIN_CAPACITY then creates table with capacity = MIN_CAPACITY
+    explicit HashTable(const int capacity = MIN_CAPACITY);
 
     ~HashTable();
 
@@ -77,6 +79,8 @@ public:
     // Returns true, if exist different cells with equal index
     friend bool compare_cells(const HashTable& a, const HashTable& b);
 
+    int calc_dist(int index, int hash);
+
     int my_find(const Key& k){ return find(k); }; // for testing
 private:
     int capacity_;
@@ -91,7 +95,7 @@ private:
     const Cell** cells;
 
     const static size_t PRIME_1 = 7;
-    const static size_t MIN_CAPACITY = 4;
+    const static int MIN_CAPACITY = 4;
 
     void free_cells();
 
@@ -104,5 +108,7 @@ private:
     int find(const Key& k) const;
 
     bool insert(const Key& k, const Value& v, int capacity, const Cell** array);
+
+    void shift(int& index);
 };
 #endif

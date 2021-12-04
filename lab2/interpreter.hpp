@@ -8,6 +8,17 @@
 #include "command.hpp"
 #include <cassert>
 
+struct Context {
+    Context(MyStack& stk, std::string & result, std::string::iterator& it, std::string::iterator& end): stk(stk), result(result), it(it), end(end){}
+
+    MyStack& stk;
+    std::string & result;
+    std::string::iterator& it;
+    std::string::iterator& end;
+    std::stringstream str;
+    };  
+
+
 class Interpreter{
 public:
     // Returs always the same instance of interpreter
@@ -30,10 +41,10 @@ public:
     // Returns suitable command
     Command* get_cmd(std::string::iterator & it, std::string::iterator & end);
 
-    typedef Command*(*creator_t)();    // ptr to function(Ctor different commands)
+    //typedef Command*(*creator_t)();    // ptr to function(Ctor different commands)
 
     // Register commands
-    bool register_command(int i, creator_t cmd){    
+    bool register_command(std::string i, Command* cmd){    
         my_creator[i] = cmd;
         return true;
     }
@@ -46,28 +57,13 @@ public:
     std::string result;
 
     class MyStack _stk; // after testing will private
-
+    
 private:
-    struct Info{
-        int c_cmd;
-        int c_operands;
-        int c_exep;
-        bool is_print;
-        bool is_cr;
-        bool is_point_or_emit;
-        
-        void clear(){c_cmd = 0; c_operands = 0; c_exep = 0;
-                    is_print = false; is_cr = false; is_point_or_emit = false;
-        }
-    };
-
-    Info info;
-    std::map<std::string, Command> my_creator;
+    std::map<std::string, Command*> my_creator;
     void handle_operand(std::string::iterator & it, std::string::iterator & end);
     bool is_digit(std::string::iterator& it, std::string::iterator& end);
-    long long get_num(std::string::iterator& it, std::string::iterator& end);
+    void get_num(std::string::iterator& it, std::string::iterator& end , MyStack& _stk);
     bool is_cmd(std::string::iterator& it, std::string::iterator& end);
-    long long get_command(std::string::iterator& it, std::string::iterator& end);
     bool is_negative(std::string::iterator& it, std::string::iterator& end);
     void handle_cmd(std::string::iterator& it, std::string::iterator & end);
 };

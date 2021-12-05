@@ -11,7 +11,7 @@ int main(){
     while(true){
         std::cout << "> ";
         std::getline(std::cin , exp);
-        interpreter.interpret(exp);
+        std::cout << interpreter.interpret(exp) << std::endl;
     }
     return 0;
 }

@@ -1,6 +1,4 @@
 #include <iostream>
-#include <sstream>
-#include <string>
 #include <limits>
 #include "interpreter.hpp"
 #include "interpreter_error.hpp"
@@ -13,20 +11,19 @@ bool Interpreter::is_digit(std::string::iterator& it, std::string::iterator& end
     return (int)(*it) >= (int)'0' && (int)(*it) <= (int)'9';
 }
 
-void Interpreter::get_num(std::string::iterator& it, std::string::iterator& end , MyStack& _stk){
-    std::string exp = std::string(it , end);
+void Interpreter::get_num(Context& context){
+
+    std::string exp = std::string(context.it , context.end);
     std::string::iterator cur_it;
-
     int shift = exp.find(' ');
-    if(shift == -1) cur_it = end;
-    else cur_it = exp.begin() + shift;
+    if(shift == -1) cur_it = context.end;
+    else cur_it = context.it + shift;
 
-    std::string str = std::string(it , cur_it);
-    std::cout << str << std::endl;
-    it = (cur_it == end ? end : cur_it + 1);
+    std::string str = std::string(context.it , cur_it);
 
-    int res = std::stoi(str);  
+    context.it = (cur_it == context.end ? context.end : cur_it + 1);
 
+    int res = std::stoi(str);     
     _stk.push(res);
 }
 
@@ -40,43 +37,66 @@ bool Interpreter::is_negative(std::string::iterator& it, std::string::iterator& 
     return false;
 }
 
-Command* Interpreter::get_cmd(std::string::iterator& it, std::string::iterator& end){
-    std::string str = std::string(it, end);
+Command* Interpreter::get_cmd(std::string::iterator& it, std::string::iterator & end){
+
+    std::string str_ = std::string(it, end);
 
     std::string::iterator cur_it;
-    int shift = str.find(' ');
+
+    int shift = str_.find(' ');
     if(shift == -1) cur_it = end;
-    else cur_it = str.begin() + shift;
+
+    else cur_it = it + shift;
 
     std::string cmd = std::string(it, cur_it);
 
-    it = (cur_it == end ? end : cur_it + 1);
+    if(cmd == " ") it++;
 
-    if(my_creator.find(cmd) != my_creator.end()){
-        throw Interpreter_error("no such command");
-    }
+    it = (end == cur_it ? end : cur_it + 1);
 
-    return my_creator.find(cmd)->second;        
+    if(my_creator.find(cmd) == my_creator.end()) throw Interpreter_error("no such command\n");
+
+    std::map<std::string, Command*>::iterator creator_it = my_creator.find(cmd);
+    return creator_it->second;
 }
 
-void Interpreter::interpret(std::string& exp){
-    result.clear();
+std::string Interpreter::interpret(std::string& exp){
     std::string::iterator it = exp.begin();     
     std::string::iterator end = exp.end();
 
-    Context context(_stk, result, it, end);
+    Context context(_stk, it , end);
+    
+    context.sstr.clear();
 
-    bool flag = true;
     while(true){
         try{
-            if(is_digit(it,end)) get_num(it, end, _stk);
-            else{
-                Command* cmd = get_cmd(it,end);
-                cmd->apply(context);
+            if(*it == ' ') {
+                it++;
+                continue;
             }
+
+            if(is_digit(it, end)) {
+                get_num(context);
+                info.digits += 1;
+                //std::cerr << _stk << std::endl;  
+            }
+            else{
+
+                Command* cmd = get_cmd(it, end);
+                cmd->apply(context);
+                info.cmds += 1;
+            }
+            
+            if(it == end) break;
+
         }catch(Interpreter_error& e){
-            result.append(e.what());
+            context.sstr << e.what();
+            info.exept += 1;
+            if(it == end) break;
         }
     }
-    //std::cout << _stk;
+    if(info.exept == 0 && info.cmds == 0 && info.digits != 0) context.sstr << "< ok\n"; 
+    info.clear();
+    
+    return context.sstr.str();
 }

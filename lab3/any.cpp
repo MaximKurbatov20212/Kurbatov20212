@@ -8,11 +8,11 @@ public:
     
     ~Any() { std::cout << "T Dtor" << std::endl;}
 
-    Any(const Any & other): value_(other.value_){
+    explicit Any(const Any & other): value_(other.value_){
         std::cout << "T CopyCtor" << std::endl;
     }
 
-    Any(T && other): value_(other){}
+    explicit Any(T && other): value_(other){}
 
     Any & operator=(const Any &);
     
@@ -48,12 +48,12 @@ public:
         std::cout << "D* Ctor" << std::endl;
     }
 
-    Any(const Any & other): value_(new T){
+    explicit Any(const Any & other): value_(new T){
         std::cout << "T* CopyCtor" << std::endl;
         *value_ = *(other.value_);
     }
 
-    Any(T* &&);
+    explicit Any(T* &&);
     Any & operator=(const Any &);
     Any & operator=(const T* & v){
         delete value_; // ???? smart or not? user hasn't got method delete

@@ -10,6 +10,7 @@ struct Context{
     std::string::iterator& it;
     std::string::iterator& end;
     std::stringstream sstr;
+    std::string str;
 };  
 
 class Command{
@@ -135,8 +136,8 @@ class Emit: public Command{
     // Throws exception "too few elements", if stack size < 1
     void apply(Context& context) override{
         int top = context.stk.pop();
-        if(!std::isprint(top)) throw Interpreter_error("is not printed");
-        context.sstr << top;
+        if(top < 0 || top > 128) throw Interpreter_error("is not printed");
+        context.sstr << (char)top;
         context.sstr << '\n';
     }
 };
@@ -181,13 +182,19 @@ class Equal: public Command{
 class Print: public Command{ 
     // Prints all between ." "
     void apply(Context& context) override{
-        while (context.it != context.end && *(context.it) != '"') {
-            context.sstr << *(context.it);
-            context.it++;
+        int len = context.str.length();
+        for(int i = 2; i < len - 1; i++){ // str[0] = . str[1] = " str [len - 1] = "
+            context.sstr << context.str[i];
         }
-        if (context.it == context.end) throw Interpreter_error("closing bracket is missing");
-        context.it++;
+        context.sstr << '\n';
     }
-    
+};    
+
+class Quit: public Command{ 
+    // Force quit
+    void apply(Context& context) override{
+        context.sstr << ""; // lol
+        exit(EXIT_SUCCESS);
+    }
 };
 #endif

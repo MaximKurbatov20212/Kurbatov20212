@@ -7,7 +7,7 @@ class MyStack{
 public:
     // Returns the top number on the stack and deletes it
     int pop(int i = 1){
-        if (stk.size() < i) throw (Interpreter_error("too few elements\n"));
+        if ((int)stk.size() < i) throw (Interpreter_error("too few elements\n"));
         int a = stk.top();
         stk.pop();
         return a;
@@ -15,7 +15,7 @@ public:
 
     // Returns the top number on the stack
     int top(int i = 1){
-        if (stk.size() < i) throw (Interpreter_error("too few elements\n"));
+        if ((int)stk.size() < i) throw (Interpreter_error("too few elements\n"));
         return stk.top();
     }
 
@@ -23,7 +23,7 @@ public:
     void push(int a){ stk.push(a);}
 
     // Returns size of stack
-    size_t size() const {return stk.size();}
+    int size() const {return stk.size();}
 
     // Prints stack
     friend std::ostream& operator<<(std::ostream &out, const MyStack& a);

@@ -4,7 +4,6 @@
 #include"my_stack.hpp"
 
 // Push
-
 TEST(interpreter_test, push_one_positive_number ){
     std::string exp = "1";
     Interpreter interpreter = Interpreter::get_instance();
@@ -25,7 +24,6 @@ TEST(interpreter_test, push_many_positive_number ){
     EXPECT_EQ(interpreter._stk.pop(), 2);
     EXPECT_EQ(interpreter._stk.pop(), 1);
 }
-
 
 TEST(interpreter_test, push_multi_digit_positive_number ){
     std::string exp = "2147483647";
@@ -61,12 +59,15 @@ TEST(interpreter_test, push_many_negative_number ){
 
 
 TEST(interpreter_test, push_multi_digit_negative_number ){
-    std::string exp = "-112389";
+    std::string exp = "-2147483648"; // INT32_MIN
     Interpreter interpreter = Interpreter::get_instance();
       
 
     EXPECT_EQ(interpreter.interpret(exp), "< ok\n");  
-    EXPECT_EQ(interpreter._stk.pop(), -112389);
+    EXPECT_EQ(interpreter._stk.pop(), -2147483648);
+
+    exp = "-2147483649";    // error
+    EXPECT_EQ(interpreter.interpret(exp), "out of range of int\n");  
 }
 
 // Without exeptions
@@ -81,7 +82,6 @@ TEST(interpreter_test, push_number_greater_then_INT32_MAX ){
 TEST(interpreter_test, push_number_less_then_minus_INT32_MAX ){
     std::string exp = "-10000000000000000000000";
     Interpreter interpreter = Interpreter::get_instance();
-      
     
     EXPECT_EQ(interpreter.interpret(exp), "out of range of int\n");
     
@@ -94,10 +94,10 @@ TEST(interpreter_test, push_unkown_symbol ){
     
     EXPECT_EQ(interpreter.interpret(exp), "no such command\n");
     
-    exp.clear();
-    exp = "   dasweqew   ";
+    // exp.clear();
+    // exp = "   dasweqew   ";
       
-    EXPECT_EQ(interpreter.interpret(exp), "no such command\n");
+    // EXPECT_EQ(interpreter.interpret(exp), "no such command\n");
 }    
 
 
@@ -289,11 +289,11 @@ TEST(interpreter_test, command_Equal_cannot_be_used ){
     EXPECT_EQ(interpreter.interpret(exp), "too few elements\n");
 }    
 
-TEST(interpreter_test, command_Print_without_second_quote){
+TEST(interpreter_test, command_Print_without_closing_bracket){
     std::string exp = ".\"123";
     Interpreter interpreter = Interpreter::get_instance();
     
-    EXPECT_EQ(interpreter.interpret(exp), "there is no second \"\n");
+    EXPECT_EQ(interpreter.interpret(exp), "closing bracket is missing\n");
 }    
 
 // Command
@@ -563,12 +563,18 @@ TEST(interpreter_test, test_over){
     interpreter._stk.clear();
 }   
 
-
 TEST(interpreter_test, test_emit){
     Interpreter interpreter = Interpreter::get_instance();
-    std::string exp = "12321 3213 64 48 107 65 emit emit emit emit";
-    std::string res = interpreter.interpret(exp);
-    EXPECT_EQ(interpreter.interpret(exp), "A\nk\n0\n@\n");
+    std::string exp = "12321 emit";
+    EXPECT_EQ(interpreter.interpret(exp), "is not printed");
+    interpreter._stk.clear();
+
+    exp = "-1 2 3 65 emit";
+    EXPECT_EQ(interpreter.interpret(exp), "A\n");
+    interpreter._stk.clear();
+
+    exp = "213 213 97 emit";
+    EXPECT_EQ(interpreter.interpret(exp), "a\n");
     interpreter._stk.clear();
 }   
 
@@ -642,10 +648,12 @@ TEST(interpreter_test, test_print){
 
     exp = ".\"321321hewqhj\"";
     EXPECT_EQ(interpreter.interpret(exp), "321321hewqhj\n");
+    
+    exp = ".\"hdsa\"dasda\"dasjk\"";
+    EXPECT_EQ(interpreter.interpret(exp), "hdsa\"dasda\"dasjk\n");
 }   
 
 //
-
 TEST(interpreter_test, too_many_spaces){
     Interpreter interpreter = Interpreter::get_instance();
     std::string exp = "   1              2   ";
@@ -666,7 +674,7 @@ TEST(interpreter_test, too_many_spaces){
     interpreter._stk.clear();
 
     exp = "   1    -1    +  ";
-    
+    EXPECT_EQ(interpreter.interpret(exp), "");
     EXPECT_EQ(interpreter._stk.pop(), 0);
     interpreter._stk.clear();
 }   
@@ -692,9 +700,8 @@ TEST(interpreter_test, numbers_starting_at_zero){
     interpreter._stk.clear();
 
     exp = "001 000001 +";
-    
+    EXPECT_EQ(interpreter.interpret(exp), "");
     EXPECT_EQ(interpreter._stk.pop(), 2);
     interpreter._stk.clear();
 }   
-
 

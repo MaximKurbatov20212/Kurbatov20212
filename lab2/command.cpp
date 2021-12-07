@@ -36,4 +36,6 @@ namespace{
     bool equal_cmd = Interpreter::get_instance().register_command("=", new Equal());
 
     bool print_cmd = Interpreter::get_instance().register_command(".\"", new Print());
+
+    bool quit_cmd = Interpreter::get_instance().register_command(":q", new Quit());
 }

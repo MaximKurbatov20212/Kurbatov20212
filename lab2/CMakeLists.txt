@@ -33,17 +33,18 @@ add_executable(
   my_stack.cpp
 )
 
+target_link_libraries(
+  test_interpreter
+  gtest_main
+)
+
 if ( CMAKE_COMPILER_IS_GNUCC )
-  target_compile_options(test_interpreter PRIVATE "-Wall")
+  target_compile_options(test_interpreter PRIVATE "-Wall" "-Wextra")
 endif()
 if ( MSVC )
   target_compile_options(test_interpreter PRIVATE "/W4")
 endif()
 
-target_link_libraries(
-  test_interpreter
-  gtest_main
-)
 
 include(GoogleTest)
 gtest_discover_tests(test_interpreter)

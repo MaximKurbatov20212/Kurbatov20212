@@ -21,7 +21,7 @@ public:
     Command* get_cmd(std::string::iterator & it, std::string::iterator & end, Context& context);
 
     // Register commands 
-    bool register_command(std::string i, Command* cmd){    
+    bool register_command(const std::string & i, Command* cmd){
         my_commands[i] = cmd;
         return true;
     }

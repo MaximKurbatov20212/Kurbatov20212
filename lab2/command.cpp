@@ -3,7 +3,10 @@
 #include "interpreter.hpp"
 
 namespace{
-    bool add_cmd = Interpreter::get_instance().register_command("+", new Add());
+
+    Interpreter & interpreter = Interpreter::get_instance();
+
+    bool add_cmd = interpreter.register_command("+", new Add());
 
     bool sub_cmd = Interpreter::get_instance().register_command("-", new Sub());
     

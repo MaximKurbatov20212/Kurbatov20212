@@ -649,7 +649,7 @@ TEST(interpreter_test, test_print){
     exp = ".\"321321hewqhj\"";
     EXPECT_EQ(interpreter.interpret(exp), "321321hewqhj\n");
     
-    exp = ".\"hdsa\"dasda\"dasjk\"";
+    exp = ".\"hdsa\"dasda\"dasjk\"    ";
     EXPECT_EQ(interpreter.interpret(exp), "hdsa\"dasda\"dasjk\n");
 }   
 

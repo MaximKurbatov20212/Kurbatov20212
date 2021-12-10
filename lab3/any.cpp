@@ -1,107 +1,46 @@
-#include <iostream>
-#include <typeinfo>
+#include "any.hpp"
 
-template<typename T> 
-class Any {
-public:
-    Any() { std::cout << "T Ctor" << std::endl;}
-    
-    ~Any() { std::cout << "T Dtor" << std::endl;}
-
-    explicit Any(const Any & other): value_(other.value_){
-        std::cout << "T CopyCtor" << std::endl;
-    }
-
-    explicit Any(T && other): value_(other){}
-
-    Any & operator=(const Any &);
-    
-    Any & operator=(const T & v ){
-        value_ = v;
-        return *this;
-    }
-    
-    Any & swap(Any & other){
-        std::swap(value_, other.value_);
-    }
-
-    const std::type_info & type() const{
-        return typeid(T);
-    }
-
-    void print_value(){
-        std::cout << value_ << std::endl;
-    }
-private:
-    T value_;
-};
-
-template<typename T> 
-class Any<T*> {
-public:
-    Any(): value_(new T){
-        std::cout << "T* Dtor" << std::endl;
-    }
-    
-    ~Any(){
-        delete value_;
-        std::cout << "D* Ctor" << std::endl;
-    }
-
-    explicit Any(const Any & other): value_(new T){
-        std::cout << "T* CopyCtor" << std::endl;
-        *value_ = *(other.value_);
-    }
-
-    explicit Any(T* &&);
-    Any & operator=(const Any &);
-    Any & operator=(const T* & v){
-        delete value_; // ???? smart or not? user hasn't got method delete
-        value_ = v;
-        return *this;
-    }
-    Any & swap(Any & other){
-        std::swap(value_, other.value_);
-    }
-
-    void print_value(){
-        std::cout << value_ << std::endl;
-        std::cout << *value_ << std::endl;
-    }
-private:
-    T* value_;
-};
-
-int main(){
-    Any<int> i_a;
-    Any<int> i_b;
-
-    i_a = 1;
-
-    i_b = 2;
-
-    i_a.print_value();
-    i_b.print_value();
-
-    i_a.swap(i_b);
-    i_a.print_value();
-    i_b.print_value();
-    //Any<int*> ii_a(i_a); or Any ii_a(i_a);???
-
-    Any<int*> ii_a;
-    Any<int*> ii_b;
-    // int a = 1;
-    // int b = 2;
-
-    // ii_a = &a;
-
-    // ii_b = &b;
-
-    // ii_a.print_value();
-    // ii_b.print_value();
-
-    // ii_a.swap(ii_b);
-    // ii_a.print_value();
-    // ii_b.print_value();
-
+template<typename T>
+Any::Any(const T& value):  storage_(new B<T>(value))  {
+    std::cout << "CopyCtor Any" << std::endl;
 }   
+
+template<typename T>
+Any::Any(T&& value){
+    if (storage_ == nullptr) delete storage_;
+    storage_ = std::move(new B<T>(value));
+    std::cout << "CopyCtor Any Move" << std::endl;
+}   
+
+Any::~Any(){
+    delete storage_;
+    std::cout << "Dtor Any" << std::endl;
+} 
+
+void Any::operator=(Any& other){
+    std::cout << "op=" << std::endl;
+    if (storage_ == nullptr) delete storage_;
+    storage_ = other.storage_->get_value();
+}
+
+template<typename T>
+void Any::operator=(T& value){
+    if (storage_ == nullptr) delete storage_;
+    storage_(value);
+} 
+
+template<typename T> 
+T Any::any_cast(Any* a){  
+    T tmp = 
+    return static_cast<T>(tmp);
+}
+
+void swap(Any& a, Any& b){
+    std::cout << "swap" << std::endl;
+    std::swap(a.storage_, b.storage_);
+}
+
+std::ostream& operator<<(std::ostream &out, Any& a){
+    a.storage_->print_info(); 
+    return out;
+}  

@@ -7,7 +7,6 @@
 #include "my_stack.hpp"
 #include "command.hpp"
 
-
 class Interpreter{
 public:
     // Returs always the same instance of interpreter
@@ -18,7 +17,7 @@ public:
 
     std::string interpret(std::string& exp);
 
-    Command* get_cmd(std::string::iterator & it, std::string::iterator & end, Context& context);
+    Command* get_cmd(std::string::iterator & it, std::string::iterator & end);
 
     // Register commands 
     bool register_command(const std::string & i, Command* cmd){
@@ -29,20 +28,9 @@ public:
     class MyStack _stk; // after testing will private   
 
 private:
-    struct Info{
-        int cmds;
-        int digits;
-        int exceptions;
-        void clear(){cmds = 0; digits = 0; exceptions = 0;}
-    };
-    Info info;
     std::map<std::string, Command*> my_commands; 
     bool is_digit(std::string::iterator& it, std::string::iterator& end);
-    void get_num(Context& context);
-    bool is_num(std::string& str);
-    bool is_negative(std::string::iterator& it, std::string::iterator& end);
-    bool is_whitespace(std::string::iterator& it, std::string::iterator& end);
-    bool is_print(std::string& cmd, Context& context);
+    bool is_print(std::string::iterator& it, std::string::iterator& end);
     std::string get_as_str(std::string::iterator& it, std::string::iterator & end);
 };
 #endif

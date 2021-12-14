@@ -28,7 +28,7 @@ TEST(interpreter_test, push_many_positive_number ){
 TEST(interpreter_test, push_multi_digit_positive_number ){
     std::string exp = "2147483647";
     Interpreter interpreter = Interpreter::get_instance();
-      
+
 
     EXPECT_EQ(interpreter.interpret(exp), "< ok\n");  
     EXPECT_EQ(interpreter._stk.pop(), 2147483647);
@@ -61,7 +61,6 @@ TEST(interpreter_test, push_many_negative_number ){
 TEST(interpreter_test, push_multi_digit_negative_number ){
     std::string exp = "-2147483648"; // INT32_MIN
     Interpreter interpreter = Interpreter::get_instance();
-      
 
     EXPECT_EQ(interpreter.interpret(exp), "< ok\n");  
     EXPECT_EQ(interpreter._stk.pop(), -2147483648);
@@ -485,7 +484,7 @@ TEST(interpreter_test, test_point){
 
     std::string exp = "2 3 4 1 .";
     std::string res = interpreter.interpret(exp);
-    EXPECT_EQ(interpreter.interpret(exp), "1");
+    EXPECT_EQ(interpreter.interpret(exp), "1< ok\n");
     EXPECT_EQ(interpreter._stk.pop(), 4);
     EXPECT_EQ(interpreter._stk.pop(), 3);
     EXPECT_EQ(interpreter._stk.pop(), 2);
@@ -493,7 +492,7 @@ TEST(interpreter_test, test_point){
 
     exp = "-1  32133123 .";
     res = interpreter.interpret(exp);
-    EXPECT_EQ(interpreter.interpret(exp), "32133123");
+    EXPECT_EQ(interpreter.interpret(exp), "32133123< ok\n");
     EXPECT_EQ(interpreter._stk.pop(), -1);
     interpreter._stk.clear();
 }    
@@ -570,11 +569,11 @@ TEST(interpreter_test, test_emit){
     interpreter._stk.clear();
 
     exp = "-1 2 3 65 emit";
-    EXPECT_EQ(interpreter.interpret(exp), "A\n");
+    EXPECT_EQ(interpreter.interpret(exp), "A\n< ok\n");
     interpreter._stk.clear();
 
     exp = "213 213 97 emit";
-    EXPECT_EQ(interpreter.interpret(exp), "a\n");
+    EXPECT_EQ(interpreter.interpret(exp), "a\n< ok\n");
     interpreter._stk.clear();
 }   
 
@@ -583,7 +582,7 @@ TEST(interpreter_test, test_cr){
     Interpreter interpreter = Interpreter::get_instance();
     std::string exp = "-1 2 . cr .";
     std::string res = interpreter.interpret(exp);
-    EXPECT_EQ(interpreter.interpret(exp), "2\n-1");
+    EXPECT_EQ(interpreter.interpret(exp), "2\n-1< ok\n");
     interpreter._stk.clear();
 }   
 
@@ -644,13 +643,13 @@ TEST(interpreter_test, test_equal){
 TEST(interpreter_test, test_print){
     Interpreter interpreter = Interpreter::get_instance();
     std::string exp = ".\"hello\"";
-    EXPECT_EQ(interpreter.interpret(exp), "hello\n");
+    EXPECT_EQ(interpreter.interpret(exp), "hello\n< ok\n");
 
     exp = ".\"321321hewqhj\"";
-    EXPECT_EQ(interpreter.interpret(exp), "321321hewqhj\n");
+    EXPECT_EQ(interpreter.interpret(exp), "321321hewqhj\n< ok\n");
     
-    exp = ".\"hdsa\"dasda\"dasjk\"    ";
-    EXPECT_EQ(interpreter.interpret(exp), "hdsa\"dasda\"dasjk\n");
+    exp = ".\"hdsa\"dasda\"dasjk\"    \"";
+    EXPECT_EQ(interpreter.interpret(exp), "hdsa\"dasda\"dasjk\"    \n< ok\n");
 }   
 
 //
@@ -674,7 +673,7 @@ TEST(interpreter_test, too_many_spaces){
     interpreter._stk.clear();
 
     exp = "   1    -1    +  ";
-    EXPECT_EQ(interpreter.interpret(exp), "");
+    EXPECT_EQ(interpreter.interpret(exp), "< ok\n");
     EXPECT_EQ(interpreter._stk.pop(), 0);
     interpreter._stk.clear();
 }   
@@ -700,7 +699,7 @@ TEST(interpreter_test, numbers_starting_at_zero){
     interpreter._stk.clear();
 
     exp = "001 000001 +";
-    EXPECT_EQ(interpreter.interpret(exp), "");
+    EXPECT_EQ(interpreter.interpret(exp), "< ok\n");
     EXPECT_EQ(interpreter._stk.pop(), 2);
     interpreter._stk.clear();
 }   

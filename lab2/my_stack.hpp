@@ -6,7 +6,7 @@
 class MyStack{
 public:
     // Returns the top number on the stack and deletes it
-    int pop(int i = 1){
+    int pop(){
         if ((int)stk.size() < 1) throw (Interpreter_error("too few elements\n"));
         int a = stk.top();
         stk.pop();

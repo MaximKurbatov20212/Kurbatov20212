@@ -9,7 +9,7 @@
 
 class Interpreter{
 public:
-    // Returs always the same instance of interpreter
+    // Returns always the same instance of interpreter
     static Interpreter& get_instance(){
         static Interpreter i;
         return i;
@@ -25,7 +25,10 @@ public:
         return true;
     }
 
-    class MyStack _stk; // after testing will private   
+    // CR: keyword 'class' is redundant here
+    // CR: stack should be private no matter what. if you want to check something about stack state
+    // CR: you should use commands that print this info (e.g. '.')
+    class MyStack _stk; // after testing will private
 
 private:
     std::map<std::string, Command*> my_commands; 

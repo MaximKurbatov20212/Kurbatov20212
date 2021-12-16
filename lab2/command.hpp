@@ -146,8 +146,11 @@ class Emit : public Command {
     // Throws exception "too few elements", if stack size < 1
     void apply(Context &context) override {
         int top = context.stk.pop();
+        // CR: better error message. e.g. "Number on stack is out of ASCII range and cannot be displayed"
+        // CR: also you do not have \n here at the end is it expected? I think it's better to remove \n everywhere
+        // CR: and just add it when printing
         if (top < 0 || top > 128) throw Interpreter_error("is not printed");
-        context.sstr << (char) top;
+        context.sstr << char(top);
         context.sstr << '\n';
     }
 };
@@ -188,12 +191,13 @@ class Equal : public Command {
         if (context.stk.size() < 2) throw Interpreter_error("too few elements\n");
         int first = context.stk.pop();
         int second = context.stk.pop();
-        context.stk.push((int) (first == second));
+        context.stk.push(first == second);
     }
 };
 
 class Print : public Command {
     // Prints all between ." "
+    // CR: rewrite using one of two approaches (parse until first " / support escaped quotes)
     void apply(Context &context) override {
 
         std::string::iterator last_bracket = context.end - 1;
@@ -221,6 +225,8 @@ class Quit : public Command {
     // Force quit
     void apply(Context &context) override {
         context.sstr << "";
+        // CR: please do not use exit in your code, it's really hard to track such exists (similar to goto)
+        // CR: if you really want you can have some kind of flag is_exit in your context and set it here
         exit(EXIT_SUCCESS);
     }
 };

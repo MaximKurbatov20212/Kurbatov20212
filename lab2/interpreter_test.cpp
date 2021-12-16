@@ -3,6 +3,9 @@
 #include"command.hpp"
 #include"my_stack.hpp"
 
+// CR: keep in mind that you can write your own non test functions here
+// CR this way you won't need to repeat everything in every test method)
+
 // Push
 TEST(interpreter_test, push_one_positive_number ){
     std::string exp = "1";

@@ -24,7 +24,7 @@ class Add : public Command {
     // Adds the top two numbers on the stack and pushes the result onto the stack
     // Throws exception "too few elements", if stack size < 2
     void apply(Context &context) override {
-        if (context.stk.size() < 2) throw Interpreter_error("too few elements\n");
+        if (context.stk.size() < 2) throw interpreter_error("too few elements\n");
         int first = context.stk.pop();
         int second = context.stk.pop();
         context.stk.push(second + first);
@@ -35,7 +35,7 @@ class Sub : public Command {
     // Subtracts the top number from the second and pushes the result onto the stack
     // Throws exception "too few elements", if stack size < 2
     void apply(Context &context) override {
-        if (context.stk.size() < 2) throw Interpreter_error("too few elements\n");
+        if (context.stk.size() < 2) throw interpreter_error("too few elements\n");
         int first = context.stk.pop();
         int second = context.stk.pop();
         context.stk.push(second - first);
@@ -46,7 +46,7 @@ class Mul : public Command {
     // Multiplies the top two numbers on the stack and pushes the result onto the stack
     // Throws exception "too few elements\n", if stack size < 2
     void apply(Context &context) override {
-        if (context.stk.size() < 2) throw Interpreter_error("too few elements\n");
+        if (context.stk.size() < 2) throw interpreter_error("too few elements\n");
         int first = context.stk.pop();
         int second = context.stk.pop();
         context.stk.push(second * first);
@@ -57,8 +57,8 @@ class Div : public Command {
     // Divides the top number from the second and pushes the result onto the stack
     // Throws exception "too few elements", if stack size < 2
     void apply(Context &context) override {
-        if (context.stk.size() < 2) throw Interpreter_error("too few elements\n");
-        if (context.stk.top() == 0) throw Interpreter_error("division by zero\n");
+        if (context.stk.size() < 2) throw interpreter_error("too few elements\n");
+        if (context.stk.top() == 0) throw interpreter_error("division by zero\n");
         int first = context.stk.pop();
         int second = context.stk.pop();
         context.stk.push(second / first);
@@ -69,8 +69,8 @@ class Mod : public Command {
     // Takes the remainder of the division of the second number from the top and pushes the result onto the stack
     // Throws exception "too few elements", if stack size < 2
     void apply(Context &context) override {
-        if (context.stk.size() < 2) throw Interpreter_error("too few elements\n");
-        if (context.stk.top() == 0) throw Interpreter_error("division by zero\n");
+        if (context.stk.size() < 2) throw interpreter_error("too few elements\n");
+        if (context.stk.top() == 0) throw interpreter_error("division by zero\n");
         int first = context.stk.pop();
         int second = context.stk.pop();
         context.stk.push(second % first);
@@ -107,7 +107,7 @@ class Swap : public Command {
     // Swaps the top two numbers on the stack
     // Throws exception "too few elements", if stack size < 2
     void apply(Context &context) override {
-        if (context.stk.size() < 2) throw Interpreter_error("too few elements\n");
+        if (context.stk.size() < 2) throw interpreter_error("too few elements\n");
         int first = context.stk.pop();
         int second = context.stk.pop();
         context.stk.push(first);
@@ -119,7 +119,7 @@ class Rot : public Command {
     // Loops the top three numbers on the stack
     // Throws exception "too few elements", if stack size < 3
     void apply(Context &context) override {
-        if (context.stk.size() < 3) throw Interpreter_error("too few elements\n");
+        if (context.stk.size() < 3) throw interpreter_error("too few elements\n");
         int first = context.stk.pop();
         int second = context.stk.pop();
         int third = context.stk.pop();
@@ -133,7 +133,7 @@ class Over : public Command {
     // Copies the second number and pushes a copy over the top one.
     // Throws exception "too few elements", if stack size < 2
     void apply(Context &context) override {
-        if (context.stk.size() < 2) throw Interpreter_error("too few elements\n");
+        if (context.stk.size() < 2) throw interpreter_error("too few elements\n");
         int first = context.stk.pop();
         int second = context.stk.top();
         context.stk.push(first);
@@ -149,7 +149,7 @@ class Emit : public Command {
         // CR: better error message. e.g. "Number on stack is out of ASCII range and cannot be displayed"
         // CR: also you do not have \n here at the end is it expected? I think it's better to remove \n everywhere
         // CR: and just add it when printing
-        if (top < 0 || top > 128) throw Interpreter_error("is not printed");
+        if (top < 0 || top > 128) throw interpreter_error("is not printed");
         context.sstr << char(top);
         context.sstr << '\n';
     }
@@ -166,7 +166,7 @@ class Greater : public Command {
     // Returns true if the second number is greater than the top 
     // Throws exception "too few elements", if stack size < 2
     void apply(Context &context) override {
-        if (context.stk.size() < 2) throw Interpreter_error("too few elements\n");
+        if (context.stk.size() < 2) throw interpreter_error("too few elements\n");
         int first = context.stk.pop();
         int second = context.stk.pop();
         context.stk.push(second > first);
@@ -177,7 +177,7 @@ class Less : public Command {
     // Returns true if the second number is less than the top 
     // Throws exception "too few elements", if stack size < 2
     void apply(Context &context) override {
-        if (context.stk.size() < 2) throw Interpreter_error("too few elements\n");
+        if (context.stk.size() < 2) throw interpreter_error("too few elements\n");
         int first = context.stk.pop();
         int second = context.stk.pop();
         context.stk.push(second < first);
@@ -188,7 +188,7 @@ class Equal : public Command {
     // Returns true if the second number is equal than the top 
     // Throws exception "too few elements", if stack size < 2
     void apply(Context &context) override {
-        if (context.stk.size() < 2) throw Interpreter_error("too few elements\n");
+        if (context.stk.size() < 2) throw interpreter_error("too few elements\n");
         int first = context.stk.pop();
         int second = context.stk.pop();
         context.stk.push(first == second);
@@ -197,37 +197,40 @@ class Equal : public Command {
 
 class Print : public Command {
     // Prints all between ." "
-    // CR: rewrite using one of two approaches (parse until first " / support escaped quotes)
     void apply(Context &context) override {
-
-        std::string::iterator last_bracket = context.end - 1;
-        while (context.it != last_bracket) {
-            if (*last_bracket == '\"')break;
-            last_bracket--;
+        if(context.it == context.end) throw interpreter_error("closing bracket is missing\n");
+        int count = 0;
+        std::string res;
+        while(context.it != context.end){
+            if(*(context.it) == '"'){
+                context.it++;
+                if(count == 0) {
+                    context.sstr << res << '\n';
+                    return;
+                }
+                res += (*(context.it - 1));
+                count = 0;
+            }
+            else if(*(context.it) == '\\'){
+                context.it++;
+                if(count == 0){
+                    count++;
+                    continue;
+                }
+                res += (*(context.it - 1));
+                count = 0;
+            }
+            else{
+                if(count == 1){
+                    std::string a = "can't escape ";
+                    a += (*(context.it));
+                    throw interpreter_error(a);
+                } 
+                res += (*(context.it));
+                context.it++;
+            }
         }
-
-        if (last_bracket == context.it + 1) {
-            context.it = context.end;
-            throw Interpreter_error("closing bracket is missing\n");
-        }
-
-        context.it += 2; // skip ."
-        while (context.it != last_bracket) {
-            context.sstr << *(context.it);
-            context.it++;
-        }
-        context.it += 1; // skip "
-        context.sstr << '\n';
-    }
-};
-
-class Quit : public Command {
-    // Force quit
-    void apply(Context &context) override {
-        context.sstr << "";
-        // CR: please do not use exit in your code, it's really hard to track such exists (similar to goto)
-        // CR: if you really want you can have some kind of flag is_exit in your context and set it here
-        exit(EXIT_SUCCESS);
+        throw interpreter_error("closing bracket is missing\n");
     }
 };
 

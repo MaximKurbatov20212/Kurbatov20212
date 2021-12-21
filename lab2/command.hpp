@@ -199,29 +199,29 @@ class Print : public Command {
     // Prints all between ." "
     void apply(Context &context) override {
         if(context.it == context.end) throw interpreter_error("closing bracket is missing\n");
-        int count = 0;
+        bool count = false; // was there previously '\' or not
         std::string res;
         while(context.it != context.end){
             if(*(context.it) == '"'){
                 context.it++;
-                if(count == 0) {
+                if(count == false) {
                     context.sstr << res << '\n';
                     return;
                 }
-                res += (*(context.it - 1));
-                count = 0;
+                res += (*(context.it - 1));  
+                count = false;  
             }
             else if(*(context.it) == '\\'){
                 context.it++;
-                if(count == 0){
-                    count++;
+                if(count == false){
+                    count = true;
                     continue;
                 }
                 res += (*(context.it - 1));
-                count = 0;
+                count = false;
             }
             else{
-                if(count == 1){
+                if(count == true){
                     std::string a = "can't escape ";
                     a += (*(context.it));
                     throw interpreter_error(a);

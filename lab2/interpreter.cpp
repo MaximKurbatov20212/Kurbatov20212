@@ -6,8 +6,31 @@
 #include <algorithm>
 #include <string>
 
-inline bool Interpreter::is_digit(std::string::iterator& it, std::string::iterator& end){
-    return((*it == '-' && it + 1 != end && std::isdigit(*(it + 1))) || std::isdigit(*it));
+bool Interpreter::try_get_number(std::string::iterator& it, std::string::iterator& end, Context& context){
+    std::string::iterator last_digit;
+    if (*it == '-') {
+        it++;
+        if (it == end) {
+            my_commands["-"]->apply(context);
+            return true;
+        }
+        
+        last_digit = std::find_if_not(it, end, [](char i){return std::isdigit(i);});
+        if (last_digit == it) {
+            my_commands["-"]->apply(context);
+            return true;
+        }
+        _stk.push(std::stoi(std::string(it - 1, last_digit)));
+        it = last_digit;
+        return true;
+    }
+    else if (std::isdigit(*it)){
+        last_digit = std::find_if_not(it, end, [](char i){return std::isdigit(i);});
+        _stk.push(std::stoi(std::string(it, last_digit)));
+        it = last_digit;
+        return true;
+    }
+    return false;
 }
 
 Command* Interpreter::get_cmd(std::string::iterator& it, std::string::iterator & end){
@@ -28,19 +51,13 @@ std::string Interpreter::interpret(std::string& exp){
                 it++;
                 continue;
             }
+            
+            if(try_get_number(it, end, context)) continue;
 
-            if(is_digit(it, end)) { // finish up
-                std::string::iterator start = it;
-                if(*it == '-') it++;
-                auto end_digit = std::find_if(it, end, [](char i){return !std::isdigit(i);});
-                it = end_digit;
-                _stk.push(std::stoi(std::string(start, end_digit)));
-            }
-            else{
-                Command* cmd = get_cmd(it, end);
-                if(std::isspace(*it)) it++;
-                cmd->apply(context);
-            }
+            Command* cmd = get_cmd(it, end);
+            if(std::isspace(*it)) it++;
+            cmd->apply(context);
+        
         }catch(interpreter_error& e){
             context.sstr << e.what();
             return context.sstr.str();
@@ -48,7 +65,11 @@ std::string Interpreter::interpret(std::string& exp){
             context.sstr << "out of range of int\n";
             return context.sstr.str();
         }
+        catch(std::exception& e){
+            assert(false);
+        }
     }
+    //std::cout << _stk;
     context.sstr << "< ok\n";
     return context.sstr.str();
 }

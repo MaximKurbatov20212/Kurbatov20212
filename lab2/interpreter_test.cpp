@@ -653,6 +653,12 @@ TEST(interpreter_test, test_print){
     
     exp = ".\" hdsa    \"";
     EXPECT_EQ(interpreter.interpret(exp), "hdsa    \n< ok\n");
+
+    exp = ".\" foo\\foo\"";
+    EXPECT_EQ(interpreter.interpret(exp), "can't escape f");
+
+    exp = ".\" foo\\\"\"";
+    EXPECT_EQ(interpreter.interpret(exp), "foo\"\n< ok\n");
 }   
 
 //

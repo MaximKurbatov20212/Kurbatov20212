@@ -14,9 +14,9 @@ public:
 
     template<typename T>
     Any(T&& value){
+        std::cout << "CopyCtor Any Move" << std::endl;
         Derived<T>* tmp = dynamic_cast<Derived<T>*>(storage_);
         tmp = std::move(new Derived<T>(value));       
-        std::cout << "CopyCtor Any Move" << std::endl;
     }       
 
     ~Any(){

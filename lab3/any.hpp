@@ -1,60 +1,65 @@
-#ifndef ANY
-#define ANY
-
+#pragma once
 #include <iostream>
-#include <typeinfo>
 
 class Any {
 public:
-    Any();
-    template<typename T>
-    static T& get(){
-        return value_;
+    Any(){
+        std::cout << "Standard Ctor" << std::endl;  
     }
     
-    template<typename T> Any(const T& value); //+
+    template<typename T>
+    Any(const T& value): storage_(new Derived<T>(value))  {
+        std::cout << "CopyCtor Any" << std::endl;
+    }   
 
-    template<typename T> Any(T&& value);   //+
+    template<typename T>
+    Any(T&& value){
+        Derived<T>* tmp = dynamic_cast<Derived<T>*>(storage_);
+        tmp = std::move(new Derived<T>(value));       
+        std::cout << "CopyCtor Any Move" << std::endl;
+    }       
 
-    ~Any();  //+
- 
-    void operator=(Any& other); //+
+    ~Any(){
+        delete storage_;
+        std::cout << "Dtor Any" << std::endl;
+    } 
 
-    template<typename T> void operator=(T& value);
+    void operator=(Any& other){
+        std::cout << "op=" << std::endl;
+        if (storage_ == nullptr) delete storage_;
+        storage_ = other.storage_->get_value();
+    }
 
-    template<typename T> T any_cast(Any* a);
+    template<typename T>
+    void operator=(T& value){
+        if (storage_ == nullptr) delete storage_;
+        storage_(std::move(value));
+    }
 
-    friend void swap(Any& a, Any& b);//+
-
-    friend std::ostream& operator<<(std::ostream &out, Any& a);//+
+    template<typename T> 
+    friend T any_cast(Any* a){  
+        try{ 
+            Derived<T>* tmp = dynamic_cast<Derived<T>*>(a->storage_);
+            return static_cast<T>(tmp->value_);
+        }
+        catch(std::exception& e){
+            throw std::runtime_error("bad_any_cast");
+        }
+    }        
 
 private:
-    class A{
+    class Base{
     public:
-        virtual void print_info() = 0;
-        virtual A* get_value() = 0;
-        virtual ~A(){}
+        virtual Base* get_value() = 0;
+        virtual ~Base(){}
     };
 
     template<typename T>    
-    class B: public A{
+    class Derived: public Base{
     public:
-        B(const T& value): value_(value){}
-        
-        A* get_value() override{ return new B<T>(value_);}
-        
-        static B& get_B(){
-            return get_value();
-        }
-
-        void print_info() override {
-            std::cout << typeid(value_).name() << " " << value_ << std::endl;
-        }
-    private:
-        T value_;    
+        Derived(const T& value): value_(value){}
+        Base* get_value() override {return new Derived<T>(value_);}
+        T value_;  
     };
-
-    class A* storage_;
+    Base* storage_;
 };
-
-#endif

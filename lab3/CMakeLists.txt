@@ -12,7 +12,7 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address -static
 
 
 if ( CMAKE_COMPILER_IS_GNUCC )
-  target_compile_options(test_any PRIVATE "-Wall -Wextra")
+  target_compile_options(test_any PRIVATE "-Wall" "-Wextra")
 endif()
 if ( MSVC )
   target_compile_options(test_any PRIVATE "/M4")

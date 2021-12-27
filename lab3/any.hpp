@@ -27,9 +27,9 @@ public:
     template<typename T>
     Any(T&& value){
         std::cout << "MoveCtor Any" << std::endl;
-        if (std::is_copy_constructible_v<std::decay_t<T>> == false) throw std::runtime_error("incorrect type");
         storage_ = new Derived<T>(std::move(value));   
     }
+
     // Effect: Releases any and all resources used in management of instance.
     // Throws: Nothing
     ~Any(){
@@ -43,6 +43,7 @@ public:
         if (storage_ != nullptr) delete storage_;
         storage_ = other.storage_->get_value();
     }
+    
     // Effects: Makes a copy of value, discarding previous content, so that the new content of is equivalent in both type and value to value.
     // Throws:  Nothing
     template<typename T>
@@ -93,7 +94,9 @@ private:
     public:
         Derived(const T& value): value_(value){}
 
-        Derived(T&& value): value_(std::move(value)){}
+        Derived(T&& value): value_(std::move(value)){
+            std::cout << "MOVE" << std::endl;
+        }
 
         Base* get_value() override {
             return new Derived<T>(value_);

@@ -7,5 +7,6 @@ public:
 };
 
 int main(){
-    std::any d = new char('a');
+    //std::any d = new char('a');
+    utils::Any a = 10;
 }

@@ -1,12 +1,12 @@
 #include "any.hpp"
-#include <any>
-class Point{
-public:
-    int x = 0;
-    int y = 0;
-};
 
 int main(){
-    //std::any d = new char('a');
-    utils::Any a = 10;
+    int* p = new int(5);
+    
+    utils::Any b2 = p;
+    utils::Any a2 = b2;
+
+    std::cout << *(utils::any_cast<int*>(&b2)) << std::endl;
+    
+    delete p;
 }

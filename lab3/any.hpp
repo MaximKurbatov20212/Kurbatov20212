@@ -9,33 +9,33 @@
 namespace utils{
 class Any {
 public:
-    // Effects: Makes a instance with void value
+    // Effects: Makes an instance with void value
     // Throws:  Nothing
-    Any(): storage_(nullptr){
-          std::cout << "Default Ctor Any" << std::endl;
-    }
+    Any(){}
+
+    // Effects: Makes a copy of other's value, so that the initial content of the new instance is equivalent in both type and value to value.
+    // Throws:  Nothing
+    Any(Any& other): storage_(other.storage_->get_value()) {}
+
 
     // Effects: Makes a copy of value, so that the initial content of the new instance is equivalent in both type and value to value.
     // Throws:  Nothing
     template<typename T>
-    Any(T& value): storage_(new Derived<T>(value))  {
-        std::cout << "CopyCtor Any" << std::endl;
-    }
+    Any(T& value): storage_(new Derived<T>(value)) {}
+
 
     // Effects: Forwards value, so that the initial content of the new instance is equivalent in both type and value to value before the forward.
     // Throws:  Nothing
     template<typename T>
-    Any(T&& value){
-        std::cout << "MoveCtor Any" << std::endl;
-        storage_ = new Derived<T>(std::move(value));   
-    }
+    Any(T&& value): storage_(new Derived<T>(std::move(value))){}
+
 
     // Effect: Releases any and all resources used in management of instance.
     // Throws: Nothing
     ~Any(){
-        std::cout << "Dtor Any" << std::endl;
         if (storage_ != nullptr) delete storage_;
     } 
+
 
     // Effects: Copies content of other into current instance, discarding previous content, so that the new content is equivalent in both type and value to the content of other, or empty if other is empty.
     // Throws:  Nothing
@@ -43,7 +43,8 @@ public:
         if (storage_ != nullptr) delete storage_;
         storage_ = other.storage_->get_value();
     }
-    
+
+
     // Effects: Makes a copy of value, discarding previous content, so that the new content of is equivalent in both type and value to value.
     // Throws:  Nothing
     template<typename T>
@@ -52,16 +53,13 @@ public:
         storage_ = new Derived<T>(value);
     }
 
+
     // Returns: true if instance is empty, otherwise false.
     // Throws:  Nothing
     bool empty() const { 
         return storage_ == nullptr; 
     }
 
-    // Returns: The typeid of the contained value if instance is non-empty, otherwise typeid(void).
-    const std::type_info& type(){
-        return (empty() == true) ? typeid(void) : storage_->value_type();
-    }
 
     // Returns: If passed a pointer, it returns a similarly qualified pointer to the value content if successful, otherwise null is returned. 
     //          If T is ValueType, it returns a copy of the held value, otherwise, 
@@ -69,12 +67,6 @@ public:
     // Throws:  May throws std::runtime_erorr("bad_any_cast") if cast is unsuccessful.
     template<typename T> friend T any_cast(Any* a); 
 
-    // Returns: Copy of contained value if instance is non-empty, otherwise typeid(void).
-    // Throws:  May throws std::runtime_erorr("bad_any_cast") if cast is unsuccessful but this method will be removed after testing
-    template<typename T> 
-    T get_value() {
-        return static_cast<Derived<T>*>(storage_)->value_;
-    }
 
     // Effects: Exchange of the contents of a and b.
     friend void swap(Any& a, Any& b){
@@ -84,7 +76,6 @@ public:
 private:
     class Base{
     public:
-        virtual const std::type_info& value_type() const = 0;
         virtual Base* get_value() = 0;
         virtual ~Base(){}
     };
@@ -94,27 +85,22 @@ private:
     public:
         Derived(const T& value): value_(value){}
 
-        Derived(T&& value): value_(std::move(value)){
-            std::cout << "MOVE" << std::endl;
-        }
+        Derived(T&& value): value_(std::move(value)){}
 
         Base* get_value() override {
             return new Derived<T>(value_);
         }
-
-        const std::type_info& value_type() const override {
-            return typeid(value_);
-        }
         T value_;  
     };
 
-    Base* storage_;
+    Base* storage_{nullptr};
 };
 
 template<typename T> 
 T any_cast(Any* a) {
-    if (a->type() != typeid(T)) throw std::runtime_error("bad_any_cast");
-    return static_cast<Any::Derived<T>*>(a->storage_)->value_;
-}
+    auto * derived = dynamic_cast<Any::Derived<T>*>(a->storage_);
+    if (derived == nullptr) throw std::runtime_error("bad_any_cast");
+    return derived->value_;
+    }
 }
 #endif

@@ -23,14 +23,6 @@ public:
     Command* get_cmd(std::string::iterator & it, std::string::iterator & end);
 
     std::string interpret(std::string& exp);
-
-    int pop() {
-        return _stk.pop();
-    }
-    void clear() {
-        _stk.clear();
-    }
-
 private:
     MyStack _stk;
     std::map<std::string, Command*> my_commands; 

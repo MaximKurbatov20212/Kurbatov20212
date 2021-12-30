@@ -9,7 +9,7 @@ class MyStack {
 public:
     // Returns the top number on the stack and deletes it
     int pop() {
-        if (stk.empty()) throw interpreter_error("too few elements\n");
+        if (stk.empty()) throw interpreter_error("too few elements");
         int a = stk.top();
         stk.pop();
         return a;
@@ -17,7 +17,7 @@ public:
 
     // Returns the top number on the stack
     int top() {
-        if (stk.empty()) throw interpreter_error("too few elements\n");
+        if (stk.empty()) throw interpreter_error("too few elements");
         return stk.top();
     }
 

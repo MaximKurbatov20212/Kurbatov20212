@@ -6,18 +6,26 @@
 #include <algorithm>
 #include <string>
 
+Command* Interpreter::get_cmd(std::string::iterator& it, std::string::iterator & end){
+    std::string::iterator end_cmd = std::find_if(it, end, [](char i){return std::isspace(i);});
+    std::map<std::string, Command*>::iterator command_it = my_commands.find(std::string(it, end_cmd));
+    if(command_it == my_commands.end()) throw interpreter_error("no such command");
+    it = end_cmd;
+    return command_it->second;
+}
+
 bool Interpreter::try_get_number(std::string::iterator& it, std::string::iterator& end, Context& context){
     std::string::iterator last_digit;
     if (*it == '-') {
-        it++;
         if (it == end) {
-            my_commands["-"]->apply(context);
+            my_commands.find("-")->second->apply(context);
+            it++;
             return true;
         }
-        
+        it++;
         last_digit = std::find_if_not(it, end, [](char i){return std::isdigit(i);});
         if (last_digit == it) {
-            my_commands["-"]->apply(context);
+            my_commands.find("-")->second->apply(context);
             return true;
         }
         _stk.push(std::stoi(std::string(it - 1, last_digit)));
@@ -31,14 +39,6 @@ bool Interpreter::try_get_number(std::string::iterator& it, std::string::iterato
         return true;
     }
     return false;
-}
-
-Command* Interpreter::get_cmd(std::string::iterator& it, std::string::iterator & end){
-    std::string::iterator end_cmd = std::find_if(it, end, [](char i){return std::isspace(i);});
-    std::map<std::string, Command*>::iterator command_it = my_commands.find(std::string(it, end_cmd));
-    if(command_it == my_commands.end()) throw interpreter_error("no such command\n");
-    it = end_cmd;
-    return command_it->second;
 }
 
 std::string Interpreter::interpret(std::string& exp){
@@ -60,6 +60,7 @@ std::string Interpreter::interpret(std::string& exp){
         
         }catch(interpreter_error& e){
             context.sstr << e.what();
+            context.sstr << '\n';
             return context.sstr.str();
         }catch(std::out_of_range& e){
             context.sstr << "out of range of int\n";

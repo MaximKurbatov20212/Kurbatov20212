@@ -1,12 +1,7 @@
 #include "any.hpp"
 
 int main(){
-    int* p = new int(5);
-    
-    utils::Any b2 = p;
-    utils::Any a2 = b2;
+    utils::Any a2(5);
 
-    std::cout << *(utils::any_cast<int*>(&b2)) << std::endl;
-    
-    delete p;
+    std::cout << utils::any_cast<double>(&a2) << std::endl;
 }

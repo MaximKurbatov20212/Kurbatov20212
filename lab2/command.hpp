@@ -12,7 +12,6 @@ struct Context {
     std::string::iterator &it;
     std::string::iterator &end;
     std::stringstream sstr;
-    std::string str;
 };
 
 class Command {
@@ -196,22 +195,23 @@ class Equal : public Command {
 class Print : public Command {
     // Prints all between ." "
     void apply(Context &context) override {
-        if(context.it == context.end) throw interpreter_error("closing bracket is missing");
+        if(context.it == context.end) throw interpreter_error("closing quote is missing");
         bool escape = false; // was there previously '\' or not
         std::string res;
         while(context.it != context.end){
-            if(*(context.it) == '"'){
+            char &c = *(context.it);
+            if(c == '"'){
                 context.it++;
-                if(escape == false) {
+                if(!escape) {
                     context.sstr << res << '\n';
                     return;
                 }
                 res += (*(context.it - 1));  
                 escape = false;  
             }
-            else if(*(context.it) == '\\'){
+            else if(c == '\\'){
                 context.it++;
-                if(escape == false){
+                if(!escape){
                     escape = true;
                     continue;
                 }
@@ -219,16 +219,16 @@ class Print : public Command {
                 escape = false;
             }
             else{
-                if(escape == true){
+                if(escape){
                     std::string a = "can't escape ";
-                    a += (*(context.it));
+                    a += c;
                     throw interpreter_error(a);
                 } 
-                res += (*(context.it));
+                res += c;
                 context.it++;
             }
         }
-        throw interpreter_error("closing bracket is missing");
+        throw interpreter_error("closing quote is missing");
     }
 };
 

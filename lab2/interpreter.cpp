@@ -14,10 +14,19 @@ Command* Interpreter::get_cmd(std::string::iterator& it, std::string::iterator &
     return command_it->second;
 }
 
+/*
+ * CR: imho good way to right this method:
+ * 1. check if given position is a number (we have '-' + digits or just digits and then end of line / space)
+ * 2. if not - return false, let get_cmd handle it
+ * 3. otherwise stoi and push
+ * not insisting though
+ */
 bool Interpreter::try_get_number(std::string::iterator& it, std::string::iterator& end, Context& context){
     std::string::iterator last_digit;
     if (*it == '-') {
         if (it == end) {
+            // CR: please reuse get_cmd: in this case we would get an interpreter_error in case
+            // CR: when '-' is not defined for some reason. right now we have ub here
             my_commands.find("-")->second->apply(context);
             it++;
             return true;
@@ -25,6 +34,9 @@ bool Interpreter::try_get_number(std::string::iterator& it, std::string::iterato
         it++;
         last_digit = std::find_if_not(it, end, [](char i){return std::isdigit(i);});
         if (last_digit == it) {
+            // CR: same
+            // CR: also it is strange that
+            // CR: commands "1 2 -." work fine while  "1 2 .." does not. imho it should fail in both cases (please write a test)
             my_commands.find("-")->second->apply(context);
             return true;
         }
@@ -67,6 +79,8 @@ std::string Interpreter::interpret(std::string& exp){
             return context.sstr.str();
         }
         catch(std::exception& e){
+            // CR: i think it's better to just not catch exception e. because this way it'll just end up in cerr
+            // CR: and user will get much more info from stacktrace then from failed assert
             assert(false);
         }
     }

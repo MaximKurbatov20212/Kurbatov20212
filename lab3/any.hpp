@@ -11,7 +11,7 @@ class Any {
 public:
     // Effects: Makes an instance with void value
     // Throws:  Nothing
-    Any(){}
+    Any()= default;
 
     // Effects: Makes a copy of other's value, so that the initial content of the new instance is equivalent in both type and value to value.
     // Throws:  Nothing
@@ -33,14 +33,16 @@ public:
     // Effect: Releases any and all resources used in management of instance.
     // Throws: Nothing
     ~Any(){
-        if (storage_ != nullptr) delete storage_;
+        delete storage_;
     } 
 
 
     // Effects: Copies content of other into current instance, discarding previous content, so that the new content is equivalent in both type and value to the content of other, or empty if other is empty.
     // Throws:  Nothing
+    // CR: should return Any&
+    // CR: self-assignment
     void operator=(Any& other){
-        if (storage_ != nullptr) delete storage_;
+        delete storage_;
         storage_ = other.storage_->get_value();
     }
 
@@ -48,8 +50,9 @@ public:
     // Effects: Makes a copy of value, discarding previous content, so that the new content of is equivalent in both type and value to value.
     // Throws:  Nothing
     template<typename T>
+    // CR: should return Any&
     void operator=(T& value){
-        if (storage_ != nullptr) delete storage_;
+        delete storage_;
         storage_ = new Derived<T>(value);
     }
 
@@ -77,15 +80,15 @@ private:
     class Base{
     public:
         virtual Base* get_value() = 0;
-        virtual ~Base(){}
+        virtual ~Base()= default;
     };
 
     template<typename T>    
     class Derived: public Base{
     public:
-        Derived(const T& value): value_(value){}
+        explicit Derived(const T& value): value_(value){}
 
-        Derived(T&& value): value_(std::move(value)){}
+        explicit Derived(T&& value): value_(std::move(value)){}
 
         Base* get_value() override {
             return new Derived<T>(value_);
@@ -99,7 +102,9 @@ private:
 template<typename T> 
 T any_cast(Any* a) {
     auto * derived = dynamic_cast<Any::Derived<T>*>(a->storage_);
+    // CR: you need to throw your own exception (any_cast_error)
     if (derived == nullptr) throw std::runtime_error("bad_any_cast");
+    // CR: probably here copy ctor is called? not sure, please check
     return derived->value_;
     }
 }

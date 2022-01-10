@@ -259,7 +259,7 @@ TEST(interpreter_test, command_Print_without_closing_bracket){
     std::string exp = ".\" foo\\\""; // ." foo\""
     Interpreter interpreter = Interpreter::get_instance();
     
-    EXPECT_EQ(interpreter.interpret(exp), "closing bracket is missing\n");
+    EXPECT_EQ(interpreter.interpret(exp), "closing quote is missing\n");
 }    
 
 // Command
@@ -542,15 +542,12 @@ TEST(interpreter_test, too_many_spaces){
 
 TEST(interpreter_test, numbers_starting_at_zero){
     Interpreter interpreter = Interpreter::get_instance();
+    
     std::string exp = "01 .";
-    
     EXPECT_EQ(interpreter.interpret(exp), "1 < ok\n");
-    
 
     exp = "00000000000001 .";
-    
     EXPECT_EQ(interpreter.interpret(exp), "1 < ok\n");
-    
 
     exp = "-00000000000001 .";
     EXPECT_EQ(interpreter.interpret(exp), "-1 < ok\n");
@@ -558,4 +555,17 @@ TEST(interpreter_test, numbers_starting_at_zero){
     exp = "001 000001 + .";
     EXPECT_EQ(interpreter.interpret(exp), "2 < ok\n");
 }   
+
+TEST(interpreter_test, sub_is_correct){
+    Interpreter interpreter = Interpreter::get_instance();
+    
+    std::string exp = "1 2 -.";
+    EXPECT_EQ(interpreter.interpret(exp), "no such command\n");
+    
+    exp = "1 2 ..";
+    EXPECT_EQ(interpreter.interpret(exp), "no such command\n");
+
+    exp = "1 2 -. 1";
+    EXPECT_EQ(interpreter.interpret(exp), "no such command\n");
+}  
 

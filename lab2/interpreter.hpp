@@ -26,6 +26,6 @@ public:
 private:
     MyStack _stk;
     std::map<std::string, Command*> my_commands; 
-    bool try_get_number(std::string::iterator& it, std::string::iterator& end, Context& context);
+    bool try_get_number(std::string::iterator& it, std::string::iterator& end);
 };
 #endif

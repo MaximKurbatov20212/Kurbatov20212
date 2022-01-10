@@ -10,7 +10,7 @@ namespace utils{
 
 class any_cast_error : public std::runtime_error {
 public:
-    explicit any_cast_error(): std::runtime_error("any_cast_error"){};
+    any_cast_error(): std::runtime_error("any_cast_error"){};
 };
 
 class Any {

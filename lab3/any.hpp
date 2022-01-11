@@ -79,6 +79,10 @@ public:
     template<typename T> friend T any_cast(Any* a); 
 
 
+    // Works same as T any_cast(Any* a), but return pointer to stored value.
+    template<typename T> friend const T* any_cast(const Any& a);
+
+
     // Effects: Exchange of the contents of a and b.
     friend void swap(Any& a, Any& b){
         std::swap(a.storage_, b.storage_);
@@ -106,17 +110,18 @@ private:
 
     Base* storage_{nullptr};
 };
-
 template<typename T> 
-T any_cast(Any* a) {
+T any_cast(Any* a){
     auto * derived = dynamic_cast<Any::Derived<T>*>(a->storage_);
     if (derived == nullptr) throw any_cast_error();
-    // CR: probably here copy ctor is called? not sure, please check
-    
-    // if we will not call copy ctor then we will have such a problem how two variables will manage the same piece of memory
-    // and user can doing something(free pointer or just change value indirectly)
-    // is it right?
     return derived->value_;
+    }
+
+template<typename T> 
+const T* any_cast(const Any& a){
+    auto * derived = dynamic_cast<Any::Derived<T>*>(a.storage_);
+    if (derived == nullptr) throw any_cast_error();
+    return &(derived->value_);
     }
 }
 #endif

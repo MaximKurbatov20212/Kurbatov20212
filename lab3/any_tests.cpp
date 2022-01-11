@@ -161,12 +161,35 @@ TEST(any_tests, assigment_any_to_any){
     delete v7;   
 }
 
-TEST(any_tests, test_bad_any_cast){
+TEST(any_tests, test_bad_any_cast_just_T){
     utils::Any a = 10;
-    ASSERT_THROW(utils::any_cast<std::string>(&a), std::runtime_error);
-    ASSERT_THROW(utils::any_cast<double>(&a), std::runtime_error);
-    ASSERT_THROW(utils::any_cast<const int>(&a), std::runtime_error);
-    ASSERT_THROW(utils::any_cast<int*>(&a), std::runtime_error);
-    ASSERT_THROW(utils::any_cast<char>(&a), std::runtime_error);
-    ASSERT_THROW(utils::any_cast<const char>(&a), std::runtime_error);
+    ASSERT_THROW(utils::any_cast<std::string>(&a), utils::any_cast_error);
+    ASSERT_THROW(utils::any_cast<double>(&a), utils::any_cast_error);
+    ASSERT_THROW(utils::any_cast<const int>(&a), utils::any_cast_error);
+    ASSERT_THROW(utils::any_cast<int*>(&a), utils::any_cast_error);
+    ASSERT_THROW(utils::any_cast<char>(&a), utils::any_cast_error);
+    ASSERT_THROW(utils::any_cast<const char>(&a), utils::any_cast_error);
+}
+
+TEST(any_tests, test_bad_any_cast_pointer_to_T){
+    const utils::Any a = 10;
+    ASSERT_THROW(utils::any_cast<std::string>(&a), utils::any_cast_error);
+    ASSERT_THROW(utils::any_cast<double>(&a), utils::any_cast_error);
+    ASSERT_THROW(utils::any_cast<const int>(&a), utils::any_cast_error);
+    ASSERT_THROW(utils::any_cast<int*>(&a), utils::any_cast_error);
+    ASSERT_THROW(utils::any_cast<char>(&a), utils::any_cast_error);
+    ASSERT_THROW(utils::any_cast<const char>(&a), utils::any_cast_error);
+}
+
+TEST(any_tests, test_any_cast_pointer_to_T){
+    const utils::Any a = 10;  
+    EXPECT_TRUE(*(utils::any_cast<int>(a)) == 10);
+
+    const utils::Any a2 = 10.1;
+    EXPECT_TRUE(*(utils::any_cast<double>(a2)) == 10.1);
+
+    int* p = new int(5);
+    const utils::Any a4 = p;
+    EXPECT_TRUE(*(utils::any_cast<int*>(a4)) == p);
+    delete p;
 }

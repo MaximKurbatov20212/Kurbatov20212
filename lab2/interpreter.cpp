@@ -8,24 +8,15 @@
 
 Command* Interpreter::get_cmd(std::string::iterator& it, std::string::iterator & end){
     std::string::iterator end_cmd = std::find_if(it, end, [](char i){return std::isspace(i);});
-    std::map<std::string, Command*>::iterator command_it = my_commands.find(std::string(it, end_cmd));
+    auto command_it = my_commands.find(std::string(it, end_cmd));
     if(command_it == my_commands.end()) throw interpreter_error("no such command");
     it = end_cmd;
     return command_it->second;
 }
 
-/*
- * CR: imho good way to right this method:
- * 1. check if given position is a number (we have '-' + digits or just digits and then end of line / space)
- * 2. if not - return false, let get_cmd handle it
- * 3. otherwise stoi and push
- * not insisting though
- */
-
 bool Interpreter::try_get_number(std::string::iterator& it, std::string::iterator& end){
     std::string::iterator last_digit;
     if (*it == '-') {
-        if (it == end) return true;
 
         last_digit = std::find_if_not(it + 1, end, [](char i){return std::isdigit(i);});
         if (last_digit == it + 1) return false;

@@ -6,6 +6,7 @@ project(test_table VERSION 0.1)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address")
 
 add_executable(
   main
@@ -29,8 +30,6 @@ add_executable(
   hash_table_test.cpp
   hash_table.cpp
 )
-
-
 
 target_link_libraries(
   test_table
